@@ -1,2 +1,2 @@
-# ChatApp
-Chat App using TCP / UDP protocols for communication
+# DisasterAlertApp
+Disaster alert application using TCP / UDP protocols for communication and Java
