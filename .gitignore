@@ -26,3 +26,5 @@ replay_pid*
 # custom folders
 .vscode/
 target/
+db/
+logs/
