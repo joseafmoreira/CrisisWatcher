@@ -1,4 +1,4 @@
-package dev.joseafmoreira.db.manager;
+package dev.joseafmoreira.db.server.manager;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -15,8 +15,12 @@ public class Manager {
     private static final String DB_FOLDER = "db";
     private static final String USERS_DB = SQLITE_PARAMS + DB_FOLDER + "/users.db";
     private static Manager instance;
+    private boolean writing;
 
-    private Manager() {}
+    private Manager() {
+        initializeDatabase();
+        writing = false;
+    }
 
     public static Manager getInstance() {
         if (instance == null) instance = new Manager();
@@ -24,16 +28,20 @@ public class Manager {
         return instance;
     }
 
-    public void initializeDatabase() {
+    private void initializeDatabase() {
         FileHandler.createFolder(DB_FOLDER);
         try {
             Connection connection = DriverManager.getConnection(USERS_DB);
             Statement statement = connection.createStatement();
 
-            if (!checkTable(connection, "users")) createUsersDB(statement);
+            if (!checkTable(connection, "users")) createUsersTable(statement);
         } catch (SQLException ignored) {
             ignored.printStackTrace();
         }
+    }
+
+    private void createUsersTable(Statement statement) {
+        createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");
     }
 
     private boolean checkTable(Connection connection, String name) throws SQLException {
@@ -41,10 +49,6 @@ public class Manager {
         ResultSet resultSet = meta.getTables(null, null, name, new String[] {"TABLE"});
 
         return resultSet.next();
-    }
-
-    private void createUsersDB(Statement statement) {
-        createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");
     }
 
     private void createTable(Statement statement, String name, String parameters) {
@@ -56,7 +60,14 @@ public class Manager {
         }
     }
 
-    private void checkUser(String username) {
-        
+    public void loginUser(String username, String password) {
+        try {
+            Connection connection = DriverManager.getConnection(USERS_DB);
+            Statement statement = connection.createStatement();
+
+            
+        } catch (SQLException ignored) {
+            ignored.printStackTrace();
+        }
     }
 }

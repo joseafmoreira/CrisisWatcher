@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.joseafmoreira.db.manager.Manager;
-import dev.joseafmoreira.db.socketconnection.SocketConnection;
+import dev.joseafmoreira.db.server.manager.Manager;
+import dev.joseafmoreira.db.server.socketconnection.SocketConnection;
 import dev.joseafmoreira.log.LogsHandler;
 
 public class Server {
@@ -31,8 +31,6 @@ public class Server {
     }
 
     public void start() {
-        manager = Manager.getInstance();
-        manager.initializeDatabase();
         connections = Collections.synchronizedList(new ArrayList<>());
         while (true) {
             try {
