@@ -4,10 +4,8 @@ import java.time.LocalDateTime;
 
 import dev.joseafmoreira.file.FileManager;
 
-public class LogManager {
+public abstract class LogManager {
     private static final String DB_LOGS = "logs/db.log";
-
-    private LogManager() {}
 
     public static void addDBLogEntry(String message) {
         addLogEntry(DB_LOGS, message);

@@ -7,9 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class FileManager {
-    private FileManager() {}
-
+public abstract class FileManager {
     public static boolean verifyFolder(String path) {
         return new File(path).exists();
     }
