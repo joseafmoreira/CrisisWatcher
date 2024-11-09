@@ -1,4 +1,4 @@
-package dev.joseafmoreira.logger;
+package dev.joseafmoreira.log;
 
 import java.time.LocalDateTime;
 
