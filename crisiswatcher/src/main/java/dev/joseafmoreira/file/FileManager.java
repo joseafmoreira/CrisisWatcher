@@ -7,8 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class FileHandler {
-    private FileHandler() {}
+public class FileManager {
+    private FileManager() {}
 
     public static boolean verifyFolder(String path) {
         return new File(path).exists();

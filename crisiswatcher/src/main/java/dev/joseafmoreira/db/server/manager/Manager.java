@@ -7,8 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import dev.joseafmoreira.file.FileHandler;
-import dev.joseafmoreira.log.LogsHandler;
+import dev.joseafmoreira.file.FileManager;
+import dev.joseafmoreira.logger.LogManager;
 
 public class Manager {
     private static final String SQLITE_PARAMS = "jdbc:sqlite:";
@@ -29,7 +29,7 @@ public class Manager {
     }
 
     private void initializeDatabase() {
-        FileHandler.createFolder(DB_FOLDER);
+        FileManager.createFolder(DB_FOLDER);
         try {
             Connection connection = DriverManager.getConnection(USERS_DB);
             Statement statement = connection.createStatement();
@@ -54,9 +54,9 @@ public class Manager {
     private void createTable(Statement statement, String name, String parameters) {
         try {
             statement.execute("CREATE TABLE " + name + " (" + parameters + ")");
-            LogsHandler.addDBLogEntry("A tabela " + name + " foi criada");
+            LogManager.addDBLogEntry("A tabela " + name + " foi criada");
         } catch (SQLException ignored) {
-            LogsHandler.addDBLogEntry("Erro ao criar a tabela " + name);
+            LogManager.addDBLogEntry("Erro ao criar a tabela " + name);
         }
     }
 

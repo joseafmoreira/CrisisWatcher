@@ -9,7 +9,7 @@ import java.util.List;
 
 import dev.joseafmoreira.db.server.manager.Manager;
 import dev.joseafmoreira.db.server.socketconnection.SocketConnection;
-import dev.joseafmoreira.log.LogsHandler;
+import dev.joseafmoreira.logger.LogManager;
 
 public class Server {
     private static final int PORT = 1433;
@@ -22,10 +22,10 @@ public class Server {
     public Server() {
         try {
             serverSocket = new ServerSocket(PORT, BACKLOG, ADDRESS);
-            LogsHandler.addDBLogEntry("Servidor DB iniciado em " + ADDRESS.toString().split("/")[1] + ":" + PORT);
+            LogManager.addDBLogEntry("Servidor DB iniciado em " + ADDRESS.toString().split("/")[1] + ":" + PORT);
             start();
         } catch (IOException e) {
-            LogsHandler.addDBLogEntry("Erro ao iniciar o servidor DB");
+            LogManager.addDBLogEntry("Erro ao iniciar o servidor DB");
             System.exit(0);
         }
     }
