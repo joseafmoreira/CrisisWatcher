@@ -44,7 +44,6 @@ public class Manager {
             Boolean verifyUser = verifyUser(username);
             if (verifyUser != null && !verifyUser) {
                 INSERTING_USER = true;
-                System.out.println(username + "/" + password + "/" + profile);
                 statement.setString(1, username);
                 statement.setString(2, password);
                 statement.setInt(3, profile);
@@ -80,7 +79,6 @@ public class Manager {
     }
 
     public synchronized Boolean validateUser(String username, String password) {
-        System.out.println(username + "/" + password);
         try {
             if (INSERTING_USER) wait();
             PreparedStatement statement = connection.prepareStatement("SELECT * from users WHERE username = ? AND password = ?");

@@ -35,7 +35,6 @@ public abstract class AuthenticationProtocol {
         if (splitedInput.length == 4) {
             splitedInput[2] = hashPassword(splitedInput[2]);
             UserProfile userProfile = UserProfile.getEnum(splitedInput[3]);
-            System.out.println(userProfile);
             if (userProfile != null) {
                 splitedInput[3] = String.valueOf(userProfile.getKey());
                 boolean insertUser = (Manager.getInstance()).insertUser(splitedInput[1], splitedInput[2], Integer.valueOf(splitedInput[3]));

@@ -27,11 +27,13 @@ public class Client {
     }
 
     public void start() {
-        String input;
+        String input, sInput;
         try {
             while ((input = inInput.readLine()) != null) {
                 socketOutput.println(input);
-                System.out.println(socketInput.readLine());
+                sInput = socketInput.readLine();
+                if (sInput.equals("/close")) break;
+                System.out.println(sInput);
             }
         } catch (IOException ignored) {}
     }
