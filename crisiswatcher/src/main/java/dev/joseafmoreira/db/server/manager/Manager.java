@@ -21,11 +21,13 @@ public class Manager {
 
     private Manager() {
         try {
+            FileManager.createFolder(DB_FOLDER);
             connection = DriverManager.getConnection(CRISISWATCHER);
             LogHandler.addDBLogEntry("Conexão com a base de dados estabelecida com sucesso");
             initializeDatabase();
             INSERTING_USER = false;
         } catch (SQLException ignored) {
+            System.out.println(ignored.getMessage());
             LogHandler.addDBLogEntry("Erro ao estabelecer conexão com a base de dados");
         }
     }
@@ -42,6 +44,7 @@ public class Manager {
             Boolean verifyUser = verifyUser(username);
             if (verifyUser != null && !verifyUser) {
                 INSERTING_USER = true;
+                System.out.println(username + "/" + password + "/" + profile);
                 statement.setString(1, username);
                 statement.setString(2, password);
                 statement.setInt(3, profile);
@@ -77,6 +80,7 @@ public class Manager {
     }
 
     public synchronized Boolean validateUser(String username, String password) {
+        System.out.println(username + "/" + password);
         try {
             if (INSERTING_USER) wait();
             PreparedStatement statement = connection.prepareStatement("SELECT * from users WHERE username = ? AND password = ?");
@@ -84,9 +88,11 @@ public class Manager {
             statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery();
             notify();
-            LogHandler.addDBLogEntry("Um utilizador foi validado");
+            boolean result = resultSet.next();
+            System.out.println(result);
+            if (result) LogHandler.addDBLogEntry((result) ? "Um utilizador foi validado" : "Erro ao validar um utilizador");
 
-            return resultSet.next();
+            return result;
         } catch (InterruptedException | SQLException ignored) {
             LogHandler.addDBLogEntry("Erro ao validar um utilizador");
             return null;
