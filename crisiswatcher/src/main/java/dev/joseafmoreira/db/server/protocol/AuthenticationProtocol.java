@@ -21,7 +21,7 @@ public abstract class AuthenticationProtocol {
         String output = "Erro na autenticação";
         String[] splitedInput = input.split(" ");
         if (splitedInput.length == 3) {
-            splitedInput[2] = DigestUtils.md5Hex(input).toUpperCase();
+            splitedInput[2] = hashPassword(splitedInput[2]);
             Boolean validateUser = (Manager.getInstance()).validateUser(splitedInput[1], splitedInput[2]);
             if (validateUser) output = "Utilizador autenticado com sucesso";
         }
@@ -33,7 +33,7 @@ public abstract class AuthenticationProtocol {
         String output = "Erro no registro";
         String[] splitedInput = input.split(" ");
         if (splitedInput.length == 4) {
-            splitedInput[2] = DigestUtils.md5Hex(input).toUpperCase();
+            splitedInput[2] = hashPassword(splitedInput[2]);
             UserProfile userProfile = UserProfile.getEnum(splitedInput[3]);
             if (userProfile != null) {
                 splitedInput[3] = String.valueOf(userProfile.getKey());
@@ -43,5 +43,9 @@ public abstract class AuthenticationProtocol {
         }
 
         return output;
+    }
+
+    private static String hashPassword(String password) {
+        return DigestUtils.md5Hex(password).toUpperCase();
     }
 }

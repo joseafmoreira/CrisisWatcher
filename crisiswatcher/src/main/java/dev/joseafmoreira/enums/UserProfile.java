@@ -17,7 +17,7 @@ public enum UserProfile {
     public static UserProfile getEnum(String input) {
         UserProfile userProfile = null;
         userProfile = getByKey(input);
-        userProfile = getByValue(input);
+        if (userProfile == null) userProfile = getByValue(input);
 
         return userProfile;
     }

@@ -21,11 +21,13 @@ public class Manager {
 
     private Manager() {
         try {
+            FileManager.createFolder(DB_FOLDER);
             connection = DriverManager.getConnection(CRISISWATCHER);
             LogHandler.addDBLogEntry("Conexão com a base de dados estabelecida com sucesso");
             initializeDatabase();
             INSERTING_USER = false;
         } catch (SQLException ignored) {
+            System.out.println(ignored.getMessage());
             LogHandler.addDBLogEntry("Erro ao estabelecer conexão com a base de dados");
         }
     }
@@ -84,9 +86,11 @@ public class Manager {
             statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery();
             notify();
-            LogHandler.addDBLogEntry("Um utilizador foi validado");
+            boolean result = resultSet.next();
+            System.out.println(result);
+            if (result) LogHandler.addDBLogEntry((result) ? "Um utilizador foi validado" : "Erro ao validar um utilizador");
 
-            return resultSet.next();
+            return result;
         } catch (InterruptedException | SQLException ignored) {
             LogHandler.addDBLogEntry("Erro ao validar um utilizador");
             return null;
