@@ -103,6 +103,7 @@ public class Manager {
             Boolean verifyOldUser = verifyUser(oldUsername);
             Boolean verifyNewUser = verifyUser(newUsername);
             if (verifyOldUser != null && verifyOldUser && verifyNewUser != null && !verifyNewUser) {
+                if (UPDATE_DB) wait();
                 UPDATE_DB = true;
                 statement.setString(1, newUsername);
                 statement.setString(2, oldUsername);
@@ -115,7 +116,7 @@ public class Manager {
             }
 
             return false;
-        } catch (SQLException ignored) {
+        } catch (InterruptedException | SQLException ignored) {
             LogHandler.addDBLogEntry("Erro ao alterar o nome de utilizador");
             return false;
         }
@@ -126,6 +127,7 @@ public class Manager {
             PreparedStatement statement = connection.prepareStatement("UPDATE users SET password = ? WHERE username = ?");
             Boolean verifyUser = verifyUser(username);
             if (verifyUser != null && verifyUser) {
+                if (UPDATE_DB) wait();
                 UPDATE_DB = true;
                 statement.setString(1, newPassword);
                 statement.setString(2, username);
@@ -138,7 +140,7 @@ public class Manager {
             }
 
             return false;
-        } catch (SQLException ignored) {
+        } catch (InterruptedException | SQLException ignored) {
             LogHandler.addDBLogEntry("Erro ao alterar a palavra-passe");
             return false;
         }
