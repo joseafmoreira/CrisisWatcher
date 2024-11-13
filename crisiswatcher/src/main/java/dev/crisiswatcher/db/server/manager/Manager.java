@@ -43,6 +43,7 @@ public class Manager {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO users (username, password, profile) VALUES (?, ?, ?)");
             Boolean verifyUser = verifyUser(username);
             if (verifyUser != null && !verifyUser) {
+                if (UPDATE_DB) wait();
                 UPDATE_DB = true;
                 statement.setString(1, username);
                 statement.setString(2, password);
@@ -56,7 +57,7 @@ public class Manager {
             }
 
             return false;
-        } catch (SQLException ignored) {
+        } catch (InterruptedException | SQLException ignored) {
             LogHandler.addDBLogEntry("Erro ao inserir um utilizador");
             return false;
         }
