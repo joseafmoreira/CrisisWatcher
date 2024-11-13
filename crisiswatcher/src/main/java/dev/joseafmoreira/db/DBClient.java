@@ -1,5 +1,9 @@
 package dev.joseafmoreira.db;
 
-public class DBClient {
+import dev.joseafmoreira.db.client.Client;
 
+public class DBClient {
+    public static void main(String[] args) {
+        (new Client()).start();
+    }
 }
