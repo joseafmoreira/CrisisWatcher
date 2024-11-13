@@ -1,8 +1,8 @@
-package dev.joseafmoreira.log;
+package dev.crisiswatcher.log;
 
 import java.time.LocalDateTime;
 
-import dev.joseafmoreira.file.FileManager;
+import dev.crisiswatcher.file.FileManager;
 
 public abstract class LogHandler {
     private static final String DB_LOGS = "logs/db.log";

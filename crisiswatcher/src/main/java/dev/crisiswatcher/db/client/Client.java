@@ -1,4 +1,4 @@
-package dev.joseafmoreira.db.client;
+package dev.crisiswatcher.db.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;

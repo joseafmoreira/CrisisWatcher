@@ -1,4 +1,4 @@
-package dev.joseafmoreira.enums;
+package dev.crisiswatcher.enums;
 
 public enum UserProfile {
     HIGH(3, "High"),

@@ -1,4 +1,4 @@
-package dev.joseafmoreira.db.server.manager;
+package dev.crisiswatcher.db.server.manager;
 
 import java.sql.Statement;
 import java.sql.Connection;
@@ -8,8 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import dev.joseafmoreira.file.FileManager;
-import dev.joseafmoreira.log.LogHandler;
+import dev.crisiswatcher.file.FileManager;
+import dev.crisiswatcher.log.LogHandler;
 
 public class Manager {
     private static final String SQLITE = "jdbc:sqlite:";

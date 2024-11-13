@@ -1,8 +1,8 @@
-package dev.joseafmoreira.db.server.protocol;
+package dev.crisiswatcher.protocol;
 
-import dev.joseafmoreira.db.server.auxiliary.PasswordHandler;
-import dev.joseafmoreira.db.server.manager.Manager;
-import dev.joseafmoreira.enums.UserProfile;
+import dev.crisiswatcher.db.server.auxiliary.PasswordHandler;
+import dev.crisiswatcher.db.server.manager.Manager;
+import dev.crisiswatcher.enums.UserProfile;
 
 public abstract class AuthenticationProtocol {
     public static String processInput(String input) {

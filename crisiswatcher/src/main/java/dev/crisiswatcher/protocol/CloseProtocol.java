@@ -1,4 +1,4 @@
-package dev.joseafmoreira.db.server.protocol;
+package dev.crisiswatcher.protocol;
 
 public abstract class CloseProtocol {
     public static String processInput(String input) {

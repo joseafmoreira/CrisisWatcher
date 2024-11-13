@@ -1,6 +1,6 @@
-package dev.joseafmoreira.db;
+package dev.crisiswatcher.db;
 
-import dev.joseafmoreira.db.server.Server;
+import dev.crisiswatcher.db.server.Server;
 
 public class DBServer {
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package dev.joseafmoreira.db.server;
+package dev.crisiswatcher.db.server;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import dev.joseafmoreira.db.server.socketconnection.SocketConnection;
-import dev.joseafmoreira.log.LogHandler;
+import dev.crisiswatcher.db.server.socketconnection.SocketConnection;
+import dev.crisiswatcher.log.LogHandler;
 
 public class Server {
     private static final int PORT = 1433;

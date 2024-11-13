@@ -1,4 +1,4 @@
-package dev.joseafmoreira.db.server.socketconnection;
+package dev.crisiswatcher.db.server.socketconnection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,10 +6,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import dev.joseafmoreira.db.server.protocol.AuthenticationProtocol;
-import dev.joseafmoreira.db.server.protocol.CloseProtocol;
-import dev.joseafmoreira.db.server.protocol.UserSettingsProtocol;
-import dev.joseafmoreira.log.LogHandler;
+import dev.crisiswatcher.log.LogHandler;
+import dev.crisiswatcher.protocol.AuthenticationProtocol;
+import dev.crisiswatcher.protocol.CloseProtocol;
+import dev.crisiswatcher.protocol.UserSettingsProtocol;
 
 public class SocketConnection extends Thread implements AutoCloseable {
     private Socket clientSocket;

@@ -1,4 +1,4 @@
-package dev.joseafmoreira.db.server.auxiliary;
+package dev.crisiswatcher.db.server.auxiliary;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
