@@ -16,7 +16,7 @@ public class Manager {
     private static final String DB_FOLDER = "db";
     private static final String CRISISWATCHER  = SQLITE + DB_FOLDER + "/crisiswatcher.db";
     private static Manager instance;
-    private static boolean INSERTING_USER;
+    private static boolean UPDATE_DB;
     private static Connection connection;
 
     private Manager() {
@@ -25,7 +25,7 @@ public class Manager {
             connection = DriverManager.getConnection(CRISISWATCHER);
             LogHandler.addDBLogEntry("Conexão com a base de dados estabelecida com sucesso");
             initializeDatabase();
-            INSERTING_USER = false;
+            UPDATE_DB = false;
         } catch (SQLException ignored) {
             System.out.println(ignored.getMessage());
             LogHandler.addDBLogEntry("Erro ao estabelecer conexão com a base de dados");
@@ -43,12 +43,12 @@ public class Manager {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO users (username, password, profile) VALUES (?, ?, ?)");
             Boolean verifyUser = verifyUser(username);
             if (verifyUser != null && !verifyUser) {
-                INSERTING_USER = true;
+                UPDATE_DB = true;
                 statement.setString(1, username);
                 statement.setString(2, password);
                 statement.setInt(3, profile);
                 statement.executeUpdate();
-                INSERTING_USER = false;
+                UPDATE_DB = false;
                 notify();
                 LogHandler.addDBLogEntry("Utilizador inserido com sucesso");
 
@@ -64,7 +64,7 @@ public class Manager {
 
     public synchronized Boolean verifyUser(String username) {
         try {
-            if (INSERTING_USER) wait();
+            if (UPDATE_DB) wait();
             PreparedStatement statement = connection.prepareStatement("SELECT * from users WHERE username = ?");
             statement.setString(1, username);
             ResultSet resultSet = statement.executeQuery();
@@ -73,6 +73,7 @@ public class Manager {
 
             return resultSet.next();
         } catch (InterruptedException | SQLException ignored) {
+            System.out.println("Teste");
             LogHandler.addDBLogEntry("Erro ao verificar um utilizador");
             return null;
         }
@@ -80,20 +81,66 @@ public class Manager {
 
     public synchronized Boolean validateUser(String username, String password) {
         try {
-            if (INSERTING_USER) wait();
+            if (UPDATE_DB) wait();
             PreparedStatement statement = connection.prepareStatement("SELECT * from users WHERE username = ? AND password = ?");
             statement.setString(1, username);
             statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery();
             notify();
             boolean result = resultSet.next();
-            System.out.println(result);
             if (result) LogHandler.addDBLogEntry((result) ? "Um utilizador foi validado" : "Erro ao validar um utilizador");
 
             return result;
         } catch (InterruptedException | SQLException ignored) {
             LogHandler.addDBLogEntry("Erro ao validar um utilizador");
             return null;
+        }
+    }
+
+    public synchronized boolean changeUsername(String oldUsername, String newUsername) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE users SET username = ? WHERE username = ?");
+            Boolean verifyOldUser = verifyUser(oldUsername);
+            Boolean verifyNewUser = verifyUser(newUsername);
+            if (verifyOldUser != null && verifyOldUser && verifyNewUser != null && !verifyNewUser) {
+                UPDATE_DB = true;
+                statement.setString(1, newUsername);
+                statement.setString(2, oldUsername);
+                statement.executeUpdate();
+                UPDATE_DB = false;
+                notify();
+                LogHandler.addDBLogEntry("Nome de utilizador alterado com sucesso");
+
+                return true;
+            }
+
+            return false;
+        } catch (SQLException ignored) {
+            LogHandler.addDBLogEntry("Erro ao alterar o nome de utilizador");
+            return false;
+        }
+    }
+
+    public synchronized boolean changePassword(String username, String newPassword) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE users SET password = ? WHERE username = ?");
+            Boolean verifyUser = verifyUser(username);
+            if (verifyUser != null && verifyUser) {
+                UPDATE_DB = true;
+                statement.setString(1, newPassword);
+                statement.setString(2, username);
+                statement.executeUpdate();
+                UPDATE_DB = false;
+                notify();
+                LogHandler.addDBLogEntry("Palavra-passe alterada com sucesso");
+
+                return true;
+            }
+
+            return false;
+        } catch (SQLException ignored) {
+            LogHandler.addDBLogEntry("Erro ao alterar a palavra-passe");
+            return false;
         }
     }
 

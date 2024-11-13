@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import dev.joseafmoreira.db.server.protocol.AuthenticationProtocol;
 import dev.joseafmoreira.db.server.protocol.CloseProtocol;
+import dev.joseafmoreira.db.server.protocol.UserSettingsProtocol;
 import dev.joseafmoreira.log.LogHandler;
 
 public class SocketConnection extends Thread implements AutoCloseable {
@@ -36,9 +37,11 @@ public class SocketConnection extends Thread implements AutoCloseable {
                 String output = null;
                 if ((output = AuthenticationProtocol.processInput(finalInput)) != null) {
                     socketOutput.println(output);
+                } else if ((output = UserSettingsProtocol.processInput(finalInput)) != null) {
+                    socketOutput.println(output);
                 } else if ((output = CloseProtocol.processInput(finalInput)) != null) {
                     socketOutput.println(output);
-                    break;
+                    break; 
                 } else {
                     socketOutput.println("O comando introduzido não é válido");
                 }
