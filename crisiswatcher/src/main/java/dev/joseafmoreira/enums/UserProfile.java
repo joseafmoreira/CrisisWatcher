@@ -22,27 +22,6 @@ public enum UserProfile {
         return userProfile;
     }
 
-    public static UserProfile getByKey(String key) {
-        return switch (key) {
-            case "0" -> UserProfile.CIVILIAN;
-            case "1" -> UserProfile.LOW;
-            case "2" -> UserProfile.MEDIUM;
-            case "3" -> UserProfile.HIGH;
-            default -> null;
-        };
-    }
-
-    public static UserProfile getByValue(String value) {
-        value = value.toUpperCase();
-        return switch (value) {
-            case "CIVILIAN" -> UserProfile.CIVILIAN;
-            case "LOW" -> UserProfile.LOW;
-            case "MEDIUM" -> UserProfile.MEDIUM;
-            case "HIGH" -> UserProfile.HIGH;
-            default -> null;
-        };
-    }
-
     public int getKey() {
         return key;
     }
@@ -54,5 +33,26 @@ public enum UserProfile {
     @Override
     public String toString() {
         return getValue();
+    }
+
+    private static UserProfile getByKey(String key) {
+        return switch (key) {
+            case "0" -> UserProfile.CIVILIAN;
+            case "1" -> UserProfile.LOW;
+            case "2" -> UserProfile.MEDIUM;
+            case "3" -> UserProfile.HIGH;
+            default -> null;
+        };
+    }
+
+    private static UserProfile getByValue(String value) {
+        value = value.toUpperCase();
+        return switch (value) {
+            case "CIVILIAN" -> UserProfile.CIVILIAN;
+            case "LOW" -> UserProfile.LOW;
+            case "MEDIUM" -> UserProfile.MEDIUM;
+            case "HIGH" -> UserProfile.HIGH;
+            default -> null;
+        };
     }
 }
