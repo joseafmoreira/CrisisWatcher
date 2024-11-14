@@ -29,7 +29,7 @@ public class User {
         this.profile = profile;
     }
 
-    private enum UserProfile {
+    public enum UserProfile {
         HIGH(3, "High"),
         MEDIUM(2, "Medium"),
         LOW(1, "Low"),

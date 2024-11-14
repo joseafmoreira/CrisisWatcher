@@ -8,11 +8,13 @@ import java.net.Socket;
 
 import dev.crisiswatcher.logger.Logger;
 import dev.crisiswatcher.schema.User;
+import dev.crisiswatcher.server.manager.DBManager;
 
 public class Connection extends Thread {
     private Socket clientSocket;
     private BufferedReader socketInput;
     private PrintWriter socketOutput;
+    private DBManager dbManager;
     private User user;
 
     public Connection(Socket clientSocket) {
@@ -20,6 +22,7 @@ public class Connection extends Thread {
             this.clientSocket = clientSocket;
             socketInput = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             socketOutput = new PrintWriter(clientSocket.getOutputStream(), true);
+            dbManager = DBManager.getInstance();
         } catch (IOException e) {
             Logger.addServerLogEntry("Erro ao estabelecer conexão com o servidor: " + e.getMessage());
             interrupt();
@@ -28,10 +31,12 @@ public class Connection extends Thread {
 
     @Override
     public void run() {
-        String input;
-        while (true) {
-            
-        }
+        String input, output;
+        try {
+            while ((input = socketInput.readLine()) != null) {
+                
+            }
+        } catch (IOException ignored) {}
     }
 
     public void close() {
