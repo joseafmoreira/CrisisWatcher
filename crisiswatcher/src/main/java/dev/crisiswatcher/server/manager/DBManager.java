@@ -20,6 +20,7 @@ public class DBManager {
 
     private DBManager() {
         try {
+            FileHandler.createFolder(MAIN_FOLDER);
             connection = DriverManager.getConnection(CRISISWATCHER);
             initializeDatabase();
             Logger.addServerLogEntry("Base de dados iniciada com sucesso");
@@ -162,7 +163,6 @@ public class DBManager {
     }
 
     private void initializeDatabase() throws SQLException {
-        FileHandler.createFolder(MAIN_FOLDER);
         Statement statement = connection.createStatement();
         if (!checkTable("users")) 
             createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");

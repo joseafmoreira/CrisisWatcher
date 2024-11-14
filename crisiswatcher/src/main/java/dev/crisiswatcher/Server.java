@@ -66,7 +66,14 @@ public class Server {
             if (connection.isInterrupted()) {
                 connection.close();
                 it.remove();
-            } else if (!connection.isAlive()) connection.start();
+                continue;
+            } else if (!connection.isAlive()) {
+                try {
+                    connection.start();
+                } catch (IllegalThreadStateException ignored) {
+                    it.remove();
+                }
+            }
         }
     }
 

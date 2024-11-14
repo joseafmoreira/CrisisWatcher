@@ -4,26 +4,38 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import dev.crisiswatcher.client.io.SocketInput;
+import dev.crisiswatcher.client.io.SocketOutput;
 import dev.crisiswatcher.schema.User;
 
 public class Client {
     private static final InetAddress ADDRESS = InetAddress.getLoopbackAddress();
     private static final int PORT = 27015;
     private Socket clientSocket;
+    private SocketInput socketInput;
+    private SocketOutput socketOutput;
     private User user;
 
     public Client() {
         try {
             clientSocket = new Socket(ADDRESS, PORT);
+            socketInput = new SocketInput(this, clientSocket);
+            socketOutput = new SocketOutput(clientSocket);
+            user = new User();
         } catch (IOException ignored) {
             System.exit(0);
         }
     }
 
     public void start() {
-        while (true) {
-            
-        }
+        socketInput.start();
+        socketOutput.start();
+        while (true) 
+            if (socketOutput.isInterrupted() || socketInput.isInterrupted()) System.exit(0);
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public static void main(String[] args) {

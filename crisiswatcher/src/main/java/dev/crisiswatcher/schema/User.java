@@ -29,6 +29,11 @@ public class User {
         this.profile = profile;
     }
 
+    @Override
+    public String toString() {
+        return "User [uuid=" + uuid + ", username=" + username + ", profile=" + profile + "]";
+    }
+
     public enum UserProfile {
         HIGH(3, "High"),
         MEDIUM(2, "Medium"),

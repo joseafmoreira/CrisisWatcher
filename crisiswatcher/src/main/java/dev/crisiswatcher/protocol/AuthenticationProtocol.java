@@ -22,7 +22,7 @@ public abstract class AuthenticationProtocol {
         if (splitedInput.length == 3) {
             splitedInput[2] = PasswordHandler.hashPassword(splitedInput[2]);
             String loginResult = (DBManager.getInstance()).getUser(splitedInput[1], splitedInput[2]);
-            if (loginResult != null) output = loginResult;
+            if (loginResult != null) output = "/login " + loginResult;
         }
 
         return output;
