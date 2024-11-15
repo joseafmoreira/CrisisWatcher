@@ -19,9 +19,7 @@ public class SocketOutput extends Thread {
     public void run() {
         String input;
         try {
-            while ((input = stdInput.readLine()) != null) {
-                socketOutput.println(input);
-            }
+            while ((input = stdInput.readLine()) != null) socketOutput.println(input);
         } catch (IOException ignored) {
             interrupt();
         }
