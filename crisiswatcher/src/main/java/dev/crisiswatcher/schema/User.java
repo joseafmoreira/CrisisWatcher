@@ -5,6 +5,10 @@ public class User {
     private String username;
     private UserProfile profile;
 
+    public boolean isLogged() {
+        return !(uuid == 0 && username == null && profile == null);
+    }
+
     public int getUuid() {
         return uuid;
     }

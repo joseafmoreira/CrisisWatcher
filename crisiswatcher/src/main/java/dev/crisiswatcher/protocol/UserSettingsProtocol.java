@@ -1,5 +1,8 @@
 package dev.crisiswatcher.protocol;
 
+import dev.crisiswatcher.password.PasswordHandler;
+import dev.crisiswatcher.server.manager.DBManager;
+
 public abstract class UserSettingsProtocol {
     public static String processInput(String input) {
         String lowerInput = input.toLowerCase();
@@ -14,10 +17,25 @@ public abstract class UserSettingsProtocol {
     }
 
     private static String changeUsername(String input) {
+        String output = "Erro ao mudar o nome de utilizador";
+        String[] splitedInput = input.split(" ");
+        if (splitedInput.length == 3) {
+            boolean changeName = (DBManager.getInstance()).updateUsername(splitedInput[2], splitedInput[1]);
+            if (changeName) output = "/username " + splitedInput[1];
+        }
 
+        return output;
     }
 
     private static String changePassword(String input) {
-        
+        String output = "Erro ao mudar a palavra-passe";
+        String[] splitedInput = input.split(" ");
+        if (splitedInput.length == 3) {
+            splitedInput[1] = PasswordHandler.hashPassword(splitedInput[1]);
+            boolean changePassword = (DBManager.getInstance()).updatePassword(splitedInput[2], splitedInput[1]);
+            if (changePassword) output = "Palavra-passe alterada com sucesso";
+        }
+
+        return output;
     }
 }

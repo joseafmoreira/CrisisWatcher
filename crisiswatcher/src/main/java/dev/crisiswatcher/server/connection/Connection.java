@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import dev.crisiswatcher.logger.Logger;
 import dev.crisiswatcher.protocol.AuthenticationProtocol;
+import dev.crisiswatcher.protocol.UserSettingsProtocol;
 import dev.crisiswatcher.schema.User;
 import dev.crisiswatcher.schema.User.UserProfile;
 
@@ -34,9 +35,11 @@ public class Connection extends Thread {
         String input, output;
         try {
             while ((input = socketInput.readLine()) != null) {
+                String lowerInput = input.toLowerCase();
+                if (lowerInput.contains("/username") || lowerInput.contains("/password")) input += " " + user.getUsername();
                 String finalInput = input;
                 if ((output = AuthenticationProtocol.processInput(finalInput)) != null) {
-                    if (user.getUuid() != 0) {
+                    if (user.isLogged()) {
                         socketOutput.println("Já se encontra autenticado");
                         continue;
                     } else if (input.toLowerCase().contains("/login") && !output.equals("Erro na autenticação")) {
@@ -47,9 +50,13 @@ public class Connection extends Thread {
                     }
 
                     socketOutput.println(output);
-                } else if (input.equals("/get") && user.getUuid() != 0) {
+                } else if ((output = UserSettingsProtocol.processInput(finalInput)) != null && user.isLogged()) {
+                    if (output.contains("/username")) {
+                        user.setUsername(output.split(" ")[1]);
+                    }
+                } else if (input.equals("/get") && user.isLogged()) {
                     socketOutput.println(user);
-                } else if (input.equals("/logoff") && user.getUuid() != 0) {
+                } else if (input.equals("/logoff") && user.isLogged()) {
                     user.setUuid(0);
                     user.setUsername(null);
                     user.setProfile(null);

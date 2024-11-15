@@ -30,10 +30,14 @@ public class SocketInput extends Thread {
                     user.setUsername(splittedOutput[2]);
                     user.setProfile(UserProfile.getEnum(splittedOutput[3]));
                     output = "Login efetuado com sucesso";
+                } else if (output.contains("/username")) {
+                    user.setUsername(output.split(" ")[1]);
+                    output = "Nome de utilizador alterado com sucesso";
                 } else if (output.equals("/logoff")) {
                     user.setUuid(0);
                     user.setUsername(null);
                     user.setProfile(null);
+                    output = "O utilizador foi desconectado com sucesso";
                 }
 
                 System.out.println(output);
