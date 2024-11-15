@@ -61,6 +61,9 @@ public class Connection extends Thread {
                     user.setUsername(null);
                     user.setProfile(null);
                     socketOutput.println("/logoff");
+                } else if (lowerInput.equals("/close")) {
+                    socketOutput.println("/close");
+                    interrupt();
                 } else {
                     socketOutput.println("O comando é inválido");
                 }

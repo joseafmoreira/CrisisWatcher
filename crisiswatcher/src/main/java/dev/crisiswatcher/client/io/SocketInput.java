@@ -40,7 +40,8 @@ public class SocketInput extends Thread {
                     output = "O utilizador foi desconectado com sucesso";
                 }
 
-                System.out.println(output);
+                if (output.equals("/close")) interrupt(); 
+                else System.out.println(output);
             }
         } catch (IOException ignored) {
             interrupt();
