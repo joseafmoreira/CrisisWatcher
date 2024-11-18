@@ -12,13 +12,13 @@ import dev.crisiswatcher.protocol.UserSettingsProtocol;
 import dev.crisiswatcher.schema.User;
 import dev.crisiswatcher.schema.User.UserProfile;
 
-public class Connection extends Thread {
+public class ConnectionTCP extends Thread {
     private Socket clientSocket;
     private BufferedReader socketInput;
     private PrintWriter socketOutput;
     private User user;
 
-    public Connection(Socket clientSocket) {
+    public ConnectionTCP(Socket clientSocket) {
         try {
             this.clientSocket = clientSocket;
             socketInput = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -69,6 +69,10 @@ public class Connection extends Thread {
                 }
             }
         } catch (IOException ignored) {}
+    }
+
+    public User getUser(){
+        return user;
     }
 
     public void close() {

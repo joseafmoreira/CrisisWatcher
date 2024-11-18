@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import dev.crisiswatcher.logger.Logger;
-import dev.crisiswatcher.server.connection.Connection;
+import dev.crisiswatcher.server.connection.ConnectionTCP;
 
 public class Server {
     private static final int PORT = 27015;
@@ -18,7 +18,7 @@ public class Server {
     private static final InetAddress ADDRESS = InetAddress.getLoopbackAddress();
     private static final int TIMEOUT = 1000;
     private ServerSocket serverSocket;
-    private List<Connection> connections;
+    private List<ConnectionTCP> connections;
 
     public Server() {
         try {
@@ -35,7 +35,7 @@ public class Server {
         connections = Collections.synchronizedList(new ArrayList<>());
         while (true) {
             try {
-                connections.add(new Connection(serverSocket.accept()));
+                connections.add(new ConnectionTCP(serverSocket.accept()));
             } catch (SocketTimeoutException ignored) {}
             catch (IOException e) {
                 Logger.addServerLogEntry("Erro no servidor: " + e.getMessage());
@@ -50,9 +50,9 @@ public class Server {
     private void close() {
         try {
             if (serverSocket != null) serverSocket.close();
-            Iterator<Connection> it = connections.iterator();
+            Iterator<ConnectionTCP> it = connections.iterator();
             if (it.hasNext()) {
-                Connection connection = it.next();
+                ConnectionTCP connection = it.next();
                 connection.close();
                 it.remove();
             }
@@ -60,9 +60,9 @@ public class Server {
     }
 
     private void checkConnections() {
-        Iterator<Connection> it = connections.iterator();
+        Iterator<ConnectionTCP> it = connections.iterator();
         while (it.hasNext()) {
-            Connection connection = it.next();
+            ConnectionTCP connection = it.next();
             if (connection.isInterrupted()) {
                 connection.close();
                 it.remove();
