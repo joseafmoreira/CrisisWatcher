@@ -35,6 +35,8 @@ public class SocketInput extends Thread {
                     user.setUsername((splittedOutput[2].equals("null")) ? null : splittedOutput[2]);
                     user.setProfile((splittedOutput[3].equals("null")) ? null : UserProfile.getEnum(splittedOutput[3]));
                     output = splittedOutput[4].replaceAll("_", " ");
+                } else if (output.startsWith("/room")) {
+                    
                 }
                 System.out.println(output.equals(DEFAULT_OUTPUT_MESSAGE) ? INVALID_COMMAND_MESSAGE : output);
             }
