@@ -10,7 +10,6 @@ public class ConnectionUDP extends Thread {
     private InetAddress group;
     private int port;
     private User user;
-    
 
     public ConnectionUDP(MulticastSocket multicastSocket){
         this.multicastSocket = multicastSocket;
@@ -21,6 +20,6 @@ public class ConnectionUDP extends Thread {
     public void run(){
         byte[] buffer = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-        multicastSocket.receive(packet);
+        //multicastSocket.receive(packet);
     }
 }
