@@ -35,17 +35,16 @@ public class User {
 
     @Override
     public String toString() {
-        return "Utilizador\n" + 
-                "  ID: " + uuid + "\n" + 
-                "  Nome: " + username + "\n" + 
-                "  Perfil: " + profile;
+        return "ID: " + uuid + "\n" + 
+               "Nome: " + username + "\n" + 
+               "Perfil: " + profile;
     }
 
     public enum UserProfile {
-        HIGH(3, "High"),
-        MEDIUM(2, "Medium"),
-        LOW(1, "Low"),
-        CIVILIAN(0, "Civilian");
+        HIGH(3, "Alto"),
+        MEDIUM(2, "Médio"),
+        LOW(1, "Baixo"),
+        CIVILIAN(0, "Civil");
 
         private final int key;
         private final String value;
