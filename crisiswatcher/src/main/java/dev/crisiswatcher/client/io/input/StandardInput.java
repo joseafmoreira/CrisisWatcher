@@ -19,9 +19,8 @@ public class StandardInput extends Thread {
     public void run() {
         String input;
         try {
-            while ((input = stdInput.readLine()) != null) {
+            while ((input = stdInput.readLine()) != null) 
                 ioSharedResources.getOutputBuffer().add(input);
-            }
         } catch (IOException ignored) {
             interrupt();
         }
