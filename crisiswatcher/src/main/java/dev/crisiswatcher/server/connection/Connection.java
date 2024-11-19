@@ -54,8 +54,9 @@ public class Connection extends Thread {
                     if (output.contains("/username")) {
                         user.setUsername(output.split(" ")[1]);
                     }
+                    socketOutput.println(output);
                 } else if (input.equals("/get") && user.isLogged()) {
-                    socketOutput.println(user);
+                    socketOutput.println("/get");
                 } else if (input.equals("/logoff") && user.isLogged()) {
                     user.setUuid(0);
                     user.setUsername(null);

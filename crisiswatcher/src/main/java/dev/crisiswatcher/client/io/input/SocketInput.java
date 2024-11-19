@@ -1,26 +1,26 @@
-package dev.crisiswatcher.client.io;
+package dev.crisiswatcher.client.io.input;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-import dev.crisiswatcher.Client;
+import dev.crisiswatcher.client.io.IOSharedResources;
 import dev.crisiswatcher.schema.User;
 import dev.crisiswatcher.schema.User.UserProfile;
 
 public class SocketInput extends Thread {
-    private Client client;
+    private IOSharedResources ioSharedResources;
     private BufferedReader socketInput;
 
-    public SocketInput(Client client, Socket clienSocket) throws IOException {
-        this.client = client;
+    public SocketInput(IOSharedResources ioSharedResources, Socket clienSocket) throws IOException {
+        this.ioSharedResources = ioSharedResources;
         socketInput = new BufferedReader(new InputStreamReader(clienSocket.getInputStream()));
     }
 
     @Override
     public void run() {
-        User user = client.getUser();
+        User user = ioSharedResources.getUser();
         String output;
         try {
             while ((output = socketInput.readLine()) != null) {
@@ -33,6 +33,8 @@ public class SocketInput extends Thread {
                 } else if (output.contains("/username")) {
                     user.setUsername(output.split(" ")[1]);
                     output = "Nome de utilizador alterado com sucesso";
+                } else if (output.contains("/get")) {
+                    System.out.println(user);
                 } else if (output.equals("/logoff")) {
                     user.setUuid(0);
                     user.setUsername(null);
