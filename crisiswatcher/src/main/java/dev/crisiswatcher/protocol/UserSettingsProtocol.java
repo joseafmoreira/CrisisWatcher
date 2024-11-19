@@ -5,11 +5,10 @@ import dev.crisiswatcher.server.manager.DBManager;
 
 public abstract class UserSettingsProtocol {
     public static String processInput(String input) {
-        String lowerInput = input.toLowerCase();
         String output = null;
-        if (lowerInput.contains("/username")) {
+        if (input.contains("/username")) {
             output = changeUsername(input);
-        } else if (lowerInput.contains("/password")) {
+        } else if (input.contains("/password")) {
             output = changePassword(input);
         }
 

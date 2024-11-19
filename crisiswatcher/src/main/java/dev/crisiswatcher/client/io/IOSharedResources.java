@@ -8,18 +8,18 @@ import dev.crisiswatcher.schema.User;
 
 public class IOSharedResources {
     private User user;
-    private List<String> outputBuffer;
+    private List<String> tcpOutputBuffer;
 
     public IOSharedResources() {
         user = new User();
-        outputBuffer = Collections.synchronizedList(new ArrayList<>());
+        tcpOutputBuffer = Collections.synchronizedList(new ArrayList<>());
     }
 
     public User getUser() {
         return user;
     }
 
-    public List<String> getOutputBuffer() {
-        return outputBuffer;
+    public List<String> getTcpOutputBuffer() {
+        return tcpOutputBuffer;
     }
 }

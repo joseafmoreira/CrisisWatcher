@@ -35,7 +35,10 @@ public class User {
 
     @Override
     public String toString() {
-        return "User [uuid=" + uuid + ", username=" + username + ", profile=" + profile + "]";
+        return "Utilizador\n" + 
+                "  ID: " + uuid + "\n" + 
+                "  Nome: " + username + "\n" + 
+                "  Perfil: " + profile;
     }
 
     public enum UserProfile {

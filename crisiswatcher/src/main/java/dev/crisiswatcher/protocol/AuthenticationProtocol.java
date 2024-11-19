@@ -6,11 +6,10 @@ import dev.crisiswatcher.server.manager.DBManager;
 
 public abstract class AuthenticationProtocol {
     public static String processInput(String input) {
-        String lowerInput = input.toLowerCase();
         String output = null;
-        if (lowerInput.contains("/login")) 
+        if (input.startsWith("/login")) 
             output = login(input);
-        else if (lowerInput.contains("/register")) 
+        else if (input.startsWith("/register")) 
             output = register(input);
 
         return output;

@@ -13,6 +13,7 @@ import dev.crisiswatcher.schema.User;
 import dev.crisiswatcher.schema.User.UserProfile;
 
 public class ConnectionTCP extends Thread {
+    private static final String DEFAULT_OUTPUT_MESSAGE = "O comando é inválido";
     private Socket clientSocket;
     private BufferedReader socketInput;
     private PrintWriter socketOutput;
@@ -35,39 +36,40 @@ public class ConnectionTCP extends Thread {
         String input, output;
         try {
             while ((input = socketInput.readLine()) != null) {
-                String lowerInput = input.toLowerCase();
-                if (lowerInput.contains("/username") || lowerInput.contains("/password")) input += " " + user.getUsername();
+                if (input.startsWith("/username") || input.startsWith("/password")) input += " " + user.getUsername();
                 String finalInput = input;
-                if ((output = AuthenticationProtocol.processInput(finalInput)) != null) {
-                    if (user.isLogged()) {
-                        socketOutput.println("Já se encontra autenticado");
-                        continue;
-                    } else if (input.toLowerCase().contains("/login") && !output.equals("Erro na autenticação")) {
-                        String[] splittedOutput = output.split(" ");
-                        user.setUuid(Integer.valueOf(splittedOutput[1]));
-                        user.setUsername(splittedOutput[2]);
-                        user.setProfile(UserProfile.getEnum(splittedOutput[3]));
+                String socketOutputMessage = (input.equals("/close")) ? "/close" : DEFAULT_OUTPUT_MESSAGE;
+                if (socketOutputMessage.equals(DEFAULT_OUTPUT_MESSAGE)) {
+                    if (!user.isLogged()) {
+                        if ((output = AuthenticationProtocol.processInput(finalInput)) != null) {
+                            if (input.startsWith("/login") && !output.equals("Erro na autenticação")) {
+                                String[] splittedOutput = output.split(" ");
+                                user.setUuid(Integer.valueOf(splittedOutput[1]));
+                                user.setUsername(splittedOutput[2]);
+                                user.setProfile(UserProfile.getEnum(splittedOutput[3]));
+                                socketOutputMessage = sendUser("Utilizador autenticado com sucesso");
+                            } else {
+                                socketOutputMessage = output;
+                            }
+                        }
+                    } else {
+                        if ((output = UserSettingsProtocol.processInput(finalInput)) != null) {
+                            if (output.startsWith("/username")) {
+                                user.setUsername(output.split(" ")[1]);
+                                socketOutputMessage = sendUser("Nome de utilizador alterado com sucesso");
+                            } else {
+                                socketOutputMessage = output;
+                            }
+                        } else if (input.equals("/logout")) {
+                            user.setUuid(0);
+                            user.setUsername(null);
+                            user.setProfile(null);
+                            socketOutputMessage = sendUser("Utilizador desconectado com sucesso");
+                        }
                     }
-
-                    socketOutput.println(output);
-                } else if ((output = UserSettingsProtocol.processInput(finalInput)) != null && user.isLogged()) {
-                    if (output.contains("/username")) {
-                        user.setUsername(output.split(" ")[1]);
-                    }
-                    socketOutput.println(output);
-                } else if (input.equals("/get") && user.isLogged()) {
-                    socketOutput.println("/get");
-                } else if (input.equals("/logoff") && user.isLogged()) {
-                    user.setUuid(0);
-                    user.setUsername(null);
-                    user.setProfile(null);
-                    socketOutput.println("/logoff");
-                } else if (lowerInput.equals("/close")) {
-                    socketOutput.println("/close");
-                    interrupt();
-                } else {
-                    socketOutput.println("O comando é inválido");
                 }
+                socketOutput.println(socketOutputMessage);
+                if (socketOutputMessage.equals("/close")) interrupt();
             }
         } catch (IOException ignored) {}
     }
@@ -82,5 +84,16 @@ public class ConnectionTCP extends Thread {
             if (socketInput != null) socketInput.close();
             if (socketOutput != null) socketOutput.close();
         } catch (IOException ignored) {}
+    }
+
+    private String sendUser(String message) {
+        String name = user.getUsername();
+        UserProfile profile = user.getProfile();
+
+        return "/user " + 
+                user.getUuid() + " " + 
+                ((name == null) ? "null" : name) + " " + 
+                ((profile == null) ? "null" : profile.getKey()) + " " + 
+                message.replaceAll(" ", "_");
     }
 }
