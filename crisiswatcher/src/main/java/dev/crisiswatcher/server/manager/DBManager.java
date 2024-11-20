@@ -7,9 +7,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import dev.crisiswatcher.file.FileHandler;
 import dev.crisiswatcher.logger.Logger;
+import dev.crisiswatcher.schema.Message;
+import dev.crisiswatcher.schema.Request;
+import dev.crisiswatcher.schema.Request.RequestLevel;
+import dev.crisiswatcher.schema.Room;
 
 public class DBManager {
     private static final String SQLITE = "jdbc:sqlite:";
@@ -162,10 +168,149 @@ public class DBManager {
         }
     }
 
+    public synchronized boolean insertMessage(Message message){
+        int chatRoomId = message.getChatRoomId();
+        String content = message.getContent();
+        
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO messages (chatRoomId, content) VALUES (?, ?)");
+           
+            preparedStatement.setInt(1, chatRoomId);
+            preparedStatement.setString(2, content);
+
+            preparedStatement.executeUpdate();
+            Logger.addServerLogEntry("Uma mensagem foi inserido com sucesso");
+
+            return true;
+            
+            
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao inserir uma mensagem" + e.getMessage());
+            return false;
+        }
+    }
+
+    public synchronized List<Message> getMessagesByRoomId(int roomId){
+        List<Message> messages = new ArrayList<>();
+
+        try {
+            
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM messages WHERE chatRoomID = ?");
+           
+            preparedStatement.setInt(1, roomId);
+
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Message message = new Message();
+
+                message.setUuid(resultSet.getInt(1));
+                message.setChatRoomId(resultSet.getInt(2));
+                message.setContent(resultSet.getString(3));
+
+                messages.add(message);
+            }
+            Logger.addServerLogEntry("Mensagens foram retornadas com sucesso");
+
+            return messages;
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao encontrar mensagens por room: "+ e.getMessage());
+            return null;
+        }
+    }
+
+    public synchronized boolean insertRoom(Room room){
+        String name = room.getName();
+        int owner = room.getOwner();
+        String address = room.getAddress();
+        int port = room.getPort();
+        String code = room.getCode();
+
+        
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO rooms (name, owner, address, port, code) VALUES (?, ?, ?, ?, ?)");
+           
+            preparedStatement.setString(1, name);
+            preparedStatement.setInt(2, owner);
+            preparedStatement.setString(3, address);
+            preparedStatement.setInt(4, port);
+            preparedStatement.setString(5, code);
+            
+
+            preparedStatement.executeUpdate();
+            Logger.addServerLogEntry("Uma sala foi criada com sucesso");
+
+            return true;
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao criar uma sala: " + e.getMessage());
+            return false;
+        }
+
+    }
+
+    public synchronized boolean insertRequest(Request request){
+        int level = request.getRequest().getKey();
+        boolean approved = request.isApproved();
+
+        
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO requests (level,approved) VALUES (?, ?)");
+           
+            
+            preparedStatement.setInt(1, level);
+            preparedStatement.setBoolean(2, approved);
+            
+
+            preparedStatement.executeUpdate();
+            Logger.addServerLogEntry("Um Request foi criado com sucesso");
+
+            return true;
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao criar um request: " + e.getMessage());
+            return false;
+        }
+
+    }
+
+    public synchronized List<Request> getRequestsbyLevel(int level){
+        List<Request> requests = new ArrayList<>();
+
+        try {
+            
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM requests WHERE level = ?");
+           
+            preparedStatement.setInt(1, level);
+
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Request request = new Request();
+
+                request.setUuid(resultSet.getInt(1));
+                request.setRequest(RequestLevel.getEnum(Integer.toString(resultSet.getInt(2))));
+                request.setApproved(resultSet.getBoolean(3));
+
+                requests.add(request);
+            }
+            Logger.addServerLogEntry("Requests foram retornados com sucesso");
+
+            return requests;
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao encontrar requests por level: "+ e.getMessage());
+            return null;
+        }
+    }
+
     private void initializeDatabase() throws SQLException {
         Statement statement = connection.createStatement();
         if (!checkTable("users")) 
             createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");
+        if(!checkTable("rooms"))
+            createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, owner INTEGER, address TEXT, port INTEGER, code TEXT, FOREIGN KEY(owner) REFERENCES users(uuid)");
+        if(!checkTable("messages"))
+            createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, chatRoomID INTEGER, Content TEXT, DateTime DATETIME, FOREIGN KEY(chatRoomID) REFERENCES rooms(uuid)");
+        if(!checkTable("requests"))
+            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, approved BOOLEAN");
     }
 
     private boolean checkTable(String name) throws SQLException {

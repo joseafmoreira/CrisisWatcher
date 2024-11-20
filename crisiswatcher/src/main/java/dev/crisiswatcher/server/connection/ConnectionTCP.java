@@ -9,8 +9,10 @@ import java.net.Socket;
 import dev.crisiswatcher.logger.Logger;
 import dev.crisiswatcher.protocol.AuthenticationProtocol;
 import dev.crisiswatcher.protocol.UserSettingsProtocol;
+import dev.crisiswatcher.schema.Room;
 import dev.crisiswatcher.schema.User;
 import dev.crisiswatcher.schema.User.UserProfile;
+import dev.crisiswatcher.server.manager.DBManager;
 
 public class ConnectionTCP extends Thread {
     private static final String DEFAULT_OUTPUT_MESSAGE = "O comando é inválido";
@@ -18,6 +20,7 @@ public class ConnectionTCP extends Thread {
     private BufferedReader socketInput;
     private PrintWriter socketOutput;
     private User user;
+    private DBManager dbManager;
 
     public ConnectionTCP(Socket clientSocket) {
         try {
@@ -65,6 +68,14 @@ public class ConnectionTCP extends Thread {
                             user.setUsername(null);
                             user.setProfile(null);
                             socketOutputMessage = sendUser("Utilizador desconectado com sucesso");
+                        } else if ( input.startsWith("/createRoom")){
+                            String[] splitterInput = input.split(" ");
+                            Room room = new Room();
+                            room.setName(splitterInput[1]);
+                            dbManager.insertRoom(room);
+                        }else if( input.startsWith("/request")){
+
+
                         }
                     }
                 }

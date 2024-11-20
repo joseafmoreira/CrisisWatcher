@@ -1,18 +1,29 @@
 package dev.crisiswatcher.server.connection;
 
-import dev.crisiswatcher.logger.Logger;
-import dev.crisiswatcher.schema.User;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 
-import java.net.*;
+import dev.crisiswatcher.logger.Logger;
+import dev.crisiswatcher.schema.Message;
+import dev.crisiswatcher.schema.Room;
+import dev.crisiswatcher.server.manager.DBManager;
 
 public class ConnectionUDP extends Thread {
     private MulticastSocket multicastSocket;
-    private InetAddress group;
-    private int port;
-    private User user;
+    private Room room;
+    private DBManager dbManager;
 
-    public ConnectionUDP(MulticastSocket multicastSocket){
-        this.multicastSocket = multicastSocket;
+    public ConnectionUDP(Room room) throws IOException, UnknownHostException{
+        this.multicastSocket = new MulticastSocket(room.getPort());
+
+        InetAddress group = InetAddress.getByName(room.getAddress());
+        multicastSocket.joinGroup(group);
+
+        this.dbManager = DBManager.getInstance();
+        
         Logger.addServerLogEntry("Grupo UDP criado!");
     }
 
@@ -20,6 +31,22 @@ public class ConnectionUDP extends Thread {
     public void run(){
         byte[] buffer = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-        //multicastSocket.receive(packet);
+        
+        while(true){
+            try {
+                multicastSocket.receive(packet);
+                Message messageBD = new Message();
+                String message = new String(packet.getData(), 0, packet.getLength());
+                messageBD.setContent(message);
+                messageBD.setChatRoomId(room.getUuid());
+                
+                dbManager.insertMessage(messageBD);
+
+    
+            } catch (Exception e) {
+                Logger.addServerLogEntry("Error: " + e.toString());
+            }
+        }
+        
     }
 }
