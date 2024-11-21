@@ -9,7 +9,7 @@ public class Request {
         return uuid;
     }
 
-    public void setUuid(int uuid) {
+    public synchronized void setUuid(int uuid) {
         this.uuid = uuid;
     }
 
@@ -17,7 +17,7 @@ public class Request {
         return request;
     }
 
-    public void setRequest(RequestLevel request) {
+    public synchronized void setRequest(RequestLevel request) {
         this.request = request;
     }
 
@@ -25,7 +25,7 @@ public class Request {
         return approved;
     }
 
-    public void setApproved(boolean approved) {
+    public synchronized void setApproved(boolean approved) {
         this.approved = approved;
     }
 

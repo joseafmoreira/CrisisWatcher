@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import dev.crisiswatcher.logger.Logger;
 import dev.crisiswatcher.protocol.AuthenticationProtocol;
+import dev.crisiswatcher.protocol.RoomProtocol;
 import dev.crisiswatcher.protocol.UserSettingsProtocol;
 import dev.crisiswatcher.schema.Room;
 import dev.crisiswatcher.schema.User;
@@ -64,7 +65,7 @@ public class ConnectionTCP extends Thread {
                                 socketOutputMessage = output;
                             }
                         } else if (input.equals("/logout")) {
-                            user.setUuid(0);
+                            user.setUuid(0);    
                             user.setUsername(null);
                             user.setProfile(null);
                             socketOutputMessage = sendUser("Utilizador desconectado com sucesso");
@@ -72,9 +73,13 @@ public class ConnectionTCP extends Thread {
                             String[] splitterInput = input.split(" ");
                             Room room = new Room();
                             room.setName(splitterInput[1]);
+                            room.setCode(RoomProtocol.generateCode());
+                            room.setAddress(RoomProtocol.getIp());
+                            room.setPort(6789);
                             dbManager.insertRoom(room);
+                            new ConnectionUDP(room).start();
                         }else if( input.startsWith("/request")){
-
+                            
 
                         }
                     }

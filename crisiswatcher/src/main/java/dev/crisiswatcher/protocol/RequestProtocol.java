@@ -1,5 +1,6 @@
 package dev.crisiswatcher.protocol;
 
+import dev.crisiswatcher.schema.Request.RequestLevel;
 
 public class RequestProtocol {
     public static String processInput(String input) {
@@ -13,7 +14,7 @@ public class RequestProtocol {
     public synchronized static void sendRequest(String input){
         String[] splitedInput = input.split(" ");
         if(splitedInput.length == 2){
-            Request request = Request.getEnum(splitedInput[1]);
+            RequestLevel request = RequestLevel.getEnum(splitedInput[1]);
             if(request.getValue().equals("EVAC")){
 
             }else if(request.getValue().equals("COMM")){
