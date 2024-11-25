@@ -26,8 +26,7 @@ public class RequestHandler extends Thread {
     private InetAddress highGroup;
     private InetAddress mediumGroup;
     private InetAddress lowGroup;
-    
-    
+
     public RequestHandler(Request request) throws IOException{
         this.request = request;
 
@@ -85,18 +84,24 @@ public class RequestHandler extends Thread {
             }
 
         }
-        while(!request.isApproved()){
+        while (isApproved == null) {}
+        if(request.isApproved()){
             try {
-                Thread.sleep(20000);    
+                sendMessage(request.getRequest().toString(), GeneralSocket, General.getPort(), generalGroup);
             } catch (Exception e) {
+                Logger.addServerLogEntry("Erro a enviar REQUEST NOTIFICATION: "+e.getMessage());
             }
+            
+        }else {
+            Logger.addServerLogEntry("Request Negado");
         }
+    
     }
 
     public void sendMessage(String message, MulticastSocket socket, int port, InetAddress group) throws IOException {
         byte[] buffer = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, port);
         socket.send(packet);
-        System.out.println("Message sent: " + message);
+        Logger.addServerLogEntry("Message sent: " + message);
     }
 }
