@@ -32,10 +32,10 @@ public class RequestHandler extends Thread {
 
         this.dbManager = DBManager.getInstance();
 
-        this.General = dbManager.getGeneralRoom();
-        this.Low = dbManager.getLowRoom();
-        this.Medium = dbManager.getMediumRoom();
-        this.High = dbManager.getHighRoom();
+        this.General = dbManager.getRoomByCode("GENERALROOM");
+        this.Low = dbManager.getRoomByCode("LOWROOM");
+        this.Medium = dbManager.getRoomByCode("MEDIUMROOM");
+        this.High = dbManager.getRoomByCode("HIGHROOM");
 
         this.GeneralSocket = new MulticastSocket(General.getPort());
         this.generalGroup = InetAddress.getByName(General.getAddress());
@@ -84,7 +84,7 @@ public class RequestHandler extends Thread {
             }
 
         }
-        while (isApproved == null) {}
+        while (request.isApproved() == null) {}
         if(request.isApproved()){
             try {
                 sendMessage(request.getRequest().toString(), GeneralSocket, General.getPort(), generalGroup);

@@ -77,73 +77,24 @@ public class DBManager {
     private synchronized boolean insertUserToProfileRoom(int id, int profile) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO rommEntries (user,room) VALUES (?, ?)");
-            int high = getRoomId("HIGHROOM");
-            int medium = getRoomId("MEDIUMROOM");
-            int low = getRoomId("LOWROOM");
-            int civ = getRoomId("GENERALROOM");
             switch (profile) {
                 case 3:
                     insertUserToProfileRoom(preparedStatement, id, new String[]{"HIGHROOM", "MEDIUMROOM", "LOWROOM", "GENERALROOM"});
-                    break;
+                    return true;
                 case 2:
-                insertUserToProfileRoom(preparedStatement, id, new String[]{"MEDIUMROOM", "LOWROOM", "GENERALROOM"});
-                    break;
+                    insertUserToProfileRoom(preparedStatement, id, new String[]{"MEDIUMROOM", "LOWROOM", "GENERALROOM"});
+                    return true;
                 case 1:
-                insertUserToProfileRoom(preparedStatement, id, new String[]{"LOWROOM", "GENERALROOM"});
-                    break;
+                    insertUserToProfileRoom(preparedStatement, id, new String[]{"LOWROOM", "GENERALROOM"});
+                    return true;
+                case 0:
+                    insertUserToProfileRoom(preparedStatement, id, new String[]{"GENERALROOM"});
+                    return true;
                 default:
-                insertUserToProfileRoom(preparedStatement, id, new String[]{"GENERALROOM"});
-                    break;
+                    Logger.addServerLogEntry("Erro profile level inválido");
+                    return false;
             }
 
-            if(profile == 3){
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, high);
-                preparedStatement.executeUpdate();
-
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, medium);
-                preparedStatement.executeUpdate();
-
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, low);
-                preparedStatement.executeUpdate();
-
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, civ);
-                preparedStatement.executeUpdate();
-                return true;
-            }else if(profile == 2){
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, medium);
-                preparedStatement.executeUpdate();
-
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, low);
-                preparedStatement.executeUpdate();
-
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, civ);
-                preparedStatement.executeUpdate();
-                return true;
-            }else if(profile == 1){
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, low);
-                preparedStatement.executeUpdate();
-
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, civ);
-                preparedStatement.executeUpdate();
-                return true;
-            }else if(profile == 0){
-                preparedStatement.setInt(1, id);
-                preparedStatement.setInt(2, civ);
-                preparedStatement.executeUpdate();
-                return true;
-            }else{
-                Logger.addServerLogEntry("Erro profile invalido: ");
-                return false;
-            }
 
         } catch (Exception e) {
             Logger.addServerLogEntry("Erro ao adicionar o User nas suas respetivas default rooms: " +e.getMessage());
@@ -232,6 +183,30 @@ public class DBManager {
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao alterar o perfil do utilizador " + username + ": " + e.getMessage());
             return false;
+        }
+    }
+
+    public synchronized Room getRoomByCode(String code){
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM rooms WHERE code = ?");
+           
+            preparedStatement.setString(1, code);
+
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                Logger.addServerLogEntry("Room retornado com sucesso");
+                Room room = new Room(resultSet.getString(2), resultSet.getInt(3), resultSet.getString(4), resultSet.getInt(5), resultSet.getString(6));
+                room.setUuid(resultSet.getInt(1));
+                return room;
+            }
+            return null;
+
+
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao retornar RoomID: "+e.getMessage());
+            return null;
         }
     }
 
@@ -401,7 +376,7 @@ public class DBManager {
         if(!checkTable("messages"))
             createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, chatRoomID INTEGER, Content TEXT, DateTime DATETIME, FOREIGN KEY(chatRoomID) REFERENCES rooms(uuid)");
         if(!checkTable("requests"))
-            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, approved BOOLEAN");
+            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, approved TEXT");
         if(!checkTable("roomEntries"))
             createTable(statement, "roomEntries", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, user INTEGER, room INTEGER, FOREIGN KEY(user) REFERENCES users(uuid), FOREIGN KEY(room) REFERENCES rooms(uuid)");
     }
