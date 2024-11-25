@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import dev.crisiswatcher.client.io.IOSharedResources;
-import dev.crisiswatcher.schema.User;
+import dev.crisiswatcher.client.dto.UserDTO;
 
 public class StandardInput extends Thread {
     private static final String INVALID_COMMAND_MESSAGE = "O comando é inválido\nDigite /help para obter a lista de comandos disponíveis";
@@ -32,7 +32,8 @@ public class StandardInput extends Thread {
     @Override
     public void run() {
         List<String> tcpOutputBuffer = ioSharedResources.getTcpOutputBuffer();
-        User user = ioSharedResources.getUser();
+        List<String> udpOutputBuffer = ioSharedResources.getUdpOutputBuffer();
+        UserDTO user = ioSharedResources.getUserDTO();
         String input;
         try {
             while ((input = stdInput.readLine()) != null) {
@@ -44,10 +45,13 @@ public class StandardInput extends Thread {
                         System.out.println(getAvailableCommands(new CommandLevel[]{CommandLevel.ALL, (user.isLogged()) ? CommandLevel.AUTH : CommandLevel.NOAUTH}));
                         continue;
                     }
-
                     tcpOutputBuffer.add(input);
                 } else {
-                    System.out.println("UDP Thing");
+                    if (ioSharedResources.getUdpHandler() == null || ioSharedResources.getUdpHandler().isInterrupted()) {
+                        System.out.println("Não se encontra conectado a um chat");
+                        continue;
+                    }
+                    udpOutputBuffer.add(input);
                 }
             }
         } catch (IOException ignored) {
