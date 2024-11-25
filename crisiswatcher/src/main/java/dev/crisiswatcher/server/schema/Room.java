@@ -8,11 +8,11 @@ public class Room {
     private int port;
     private String code;
 
-    public void Room(){
+    public Room(){
         
     }
 
-    public void Room(String name, int owner, String address, int port, String code){
+    public Room(String name, int owner, String address, int port, String code){
         this.name = name;
         this.owner = owner;
         this.address = address;
