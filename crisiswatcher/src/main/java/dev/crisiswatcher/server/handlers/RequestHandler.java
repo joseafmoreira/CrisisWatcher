@@ -27,6 +27,7 @@ public class RequestHandler extends Thread {
     private InetAddress mediumGroup;
     private InetAddress lowGroup;
 
+    @SuppressWarnings("deprecation")
     public RequestHandler(Request request) throws IOException{
         this.request = request;
 
