@@ -1,8 +1,8 @@
-package dev.crisiswatcher.logger;
+package dev.crisiswatcher.server.logger;
 
 import java.time.LocalDateTime;
 
-import dev.crisiswatcher.file.FileHandler;
+import dev.crisiswatcher.server.file.FileHandler;
 
 public abstract class Logger {
     private static final String ENTRY_FOLDER = "logs/";

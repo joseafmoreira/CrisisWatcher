@@ -4,20 +4,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dev.crisiswatcher.schema.User;
+import dev.crisiswatcher.client.dto.UserDTO;
 
 public class IOSharedResources {
-    private User user;
+    private UserDTO user;
     private List<String> tcpOutputBuffer;
     private List<String> udpOutputBuffer;
 
     public IOSharedResources() {
-        user = new User();
+        user = new UserDTO();
         tcpOutputBuffer = Collections.synchronizedList(new ArrayList<>());
         udpOutputBuffer = Collections.synchronizedList(new ArrayList<>());
     }
 
-    public User getUser() {
+    public UserDTO getUser() {
         return user;
     }
 

@@ -1,4 +1,4 @@
-package dev.crisiswatcher.file;
+package dev.crisiswatcher.server.file;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,6 +1,6 @@
-package dev.crisiswatcher.protocol;
+package dev.crisiswatcher.server.protocol;
 
-import dev.crisiswatcher.password.PasswordHandler;
+import dev.crisiswatcher.server.password.PasswordHandler;
 import dev.crisiswatcher.server.manager.DBManager;
 
 public abstract class UserSettingsProtocol {

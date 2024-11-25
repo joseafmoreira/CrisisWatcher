@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import dev.crisiswatcher.logger.Logger;
+import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.connection.ConnectionTCP;
 
 public class Server {

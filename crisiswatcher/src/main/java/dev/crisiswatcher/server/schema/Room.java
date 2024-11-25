@@ -1,4 +1,4 @@
-package dev.crisiswatcher.schema;
+package dev.crisiswatcher.server.schema;
 
 public class Room {
     private int uuid;
@@ -7,6 +7,19 @@ public class Room {
     private String address;
     private int port;
     private String code;
+
+    public void Room(){
+        
+    }
+
+    public void Room(String name, int owner, String address, int port, String code){
+        this.name = name;
+        this.owner = owner;
+        this.address = address;
+        this.port = port;
+        this.code = code;
+    }
+
 
     public int getUuid() {
         return uuid;

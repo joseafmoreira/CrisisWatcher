@@ -1,4 +1,4 @@
-package dev.crisiswatcher.schema;
+package dev.crisiswatcher.server.schema;
 
 public class Message {
     private int uuid;

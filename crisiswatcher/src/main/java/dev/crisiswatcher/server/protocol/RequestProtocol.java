@@ -1,6 +1,6 @@
-package dev.crisiswatcher.protocol;
+package dev.crisiswatcher.server.protocol;
 
-import dev.crisiswatcher.schema.Request.RequestLevel;
+import dev.crisiswatcher.server.schema.Request.RequestLevel;
 
 public class RequestProtocol {
     public static String processInput(String input) {

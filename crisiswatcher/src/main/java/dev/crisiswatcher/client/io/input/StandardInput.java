@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import dev.crisiswatcher.client.io.IOSharedResources;
-import dev.crisiswatcher.schema.User;
+import dev.crisiswatcher.client.dto.UserDTO;
 
 public class StandardInput extends Thread {
     private static final String INVALID_COMMAND_MESSAGE = "O comando é inválido\nDigite /help para obter a lista de comandos disponíveis";
@@ -32,7 +32,7 @@ public class StandardInput extends Thread {
     @Override
     public void run() {
         List<String> tcpOutputBuffer = ioSharedResources.getTcpOutputBuffer();
-        User user = ioSharedResources.getUser();
+        UserDTO user = ioSharedResources.getUser();
         String input;
         try {
             while ((input = stdInput.readLine()) != null) {

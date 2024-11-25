@@ -1,4 +1,4 @@
-package dev.crisiswatcher.password;
+package dev.crisiswatcher.server.password;
 
 import org.apache.commons.codec.digest.DigestUtils;
 

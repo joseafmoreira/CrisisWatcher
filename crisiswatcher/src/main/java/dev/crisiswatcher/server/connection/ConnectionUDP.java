@@ -6,9 +6,9 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
-import dev.crisiswatcher.logger.Logger;
-import dev.crisiswatcher.schema.Message;
-import dev.crisiswatcher.schema.Room;
+import dev.crisiswatcher.server.logger.Logger;
+import dev.crisiswatcher.server.schema.Message;
+import dev.crisiswatcher.server.schema.Room;
 import dev.crisiswatcher.server.manager.DBManager;
 
 public class ConnectionUDP extends Thread {

@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.net.MulticastSocket;
 
 import dev.crisiswatcher.client.io.IOSharedResources;
-import dev.crisiswatcher.schema.User;
+import dev.crisiswatcher.client.dto.UserDTO;
 
 public class UDPHandler extends Thread {
     private IOSharedResources ioSharedResources;
     private MulticastSocket multicastSocket;
 
-    public UDPHandler(IOSharedResources ioSharedResources) {
+    public UDPHandler(IOSharedResources ioSharedResources,String address, int port) {
         try {
             this.ioSharedResources = ioSharedResources;
             multicastSocket = new MulticastSocket();
@@ -22,6 +22,6 @@ public class UDPHandler extends Thread {
 
     @Override
     public void run() {
-        User user = ioSharedResources.getUser();
+        UserDTO user = ioSharedResources.getUser();
     }
 }

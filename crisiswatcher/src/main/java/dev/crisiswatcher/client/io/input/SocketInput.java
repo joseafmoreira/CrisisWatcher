@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import dev.crisiswatcher.client.io.IOSharedResources;
-import dev.crisiswatcher.schema.User;
-import dev.crisiswatcher.schema.User.UserProfile;
+import dev.crisiswatcher.client.dto.UserDTO;
+import dev.crisiswatcher.client.dto.UserDTO.UserProfile;
 
 public class SocketInput extends Thread {
     private static final String DEFAULT_OUTPUT_MESSAGE = "O comando é inválido";
@@ -22,7 +22,7 @@ public class SocketInput extends Thread {
 
     @Override
     public void run() {
-        User user = ioSharedResources.getUser();
+        UserDTO user = ioSharedResources.getUser();
         String output;
         try {
             while ((output = socketInput.readLine()) != null) {
