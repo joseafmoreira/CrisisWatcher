@@ -1,7 +1,6 @@
 package dev.crisiswatcher.client.udp;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 import dev.crisiswatcher.client.dto.RoomDTO;
