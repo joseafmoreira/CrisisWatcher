@@ -3,7 +3,7 @@ package dev.crisiswatcher.server.schema;
 public class Request {
     private int uuid;
     private RequestLevel request;
-    private boolean approved;
+    private Boolean approved;
 
     public int getUuid() {
         return uuid;
@@ -21,11 +21,11 @@ public class Request {
         this.request = request;
     }
 
-    public boolean isApproved() {
+    public Boolean isApproved() {
         return approved;
     }
 
-    public synchronized void setApproved(boolean approved) {
+    public synchronized void setApproved(Boolean approved) {
         this.approved = approved;
     }
 
