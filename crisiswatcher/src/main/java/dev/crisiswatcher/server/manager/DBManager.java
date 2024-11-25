@@ -81,6 +81,20 @@ public class DBManager {
             int medium = getRoomId("MEDIUMROOM");
             int low = getRoomId("LOWROOM");
             int civ = getRoomId("GENERALROOM");
+            switch (profile) {
+                case 3:
+                    insertUserToProfileRoom(preparedStatement, id, new String[]{"HIGHROOM", "MEDIUMROOM", "LOWROOM", "GENERALROOM"});
+                    break;
+                case 2:
+                insertUserToProfileRoom(preparedStatement, id, new String[]{"MEDIUMROOM", "LOWROOM", "GENERALROOM"});
+                    break;
+                case 1:
+                insertUserToProfileRoom(preparedStatement, id, new String[]{"LOWROOM", "GENERALROOM"});
+                    break;
+                default:
+                insertUserToProfileRoom(preparedStatement, id, new String[]{"GENERALROOM"});
+                    break;
+            }
 
             if(profile == 3){
                 preparedStatement.setInt(1, id);
@@ -463,6 +477,18 @@ public class DBManager {
             Logger.addServerLogEntry("Erro ao retornar RoomID: "+e.getMessage());
             return -1;
         }
+    }
 
+    private synchronized void insertUserToProfileRoom(PreparedStatement preparedStatement, int id, String[] rooms) {
+        for (String room : rooms) 
+            insertUserToProfileRoom(preparedStatement, id, room);
+    }
+
+    private synchronized void insertUserToProfileRoom(PreparedStatement preparedStatement, int id, String name) {
+        try {
+            preparedStatement.setInt(1, id);
+            preparedStatement.setInt(2, getRoomId(name));
+            preparedStatement.executeUpdate();
+        } catch (SQLException ignored) {}
     }
 }
