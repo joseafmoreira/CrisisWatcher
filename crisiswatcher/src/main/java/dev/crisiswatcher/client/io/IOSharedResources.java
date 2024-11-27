@@ -10,7 +10,7 @@ import dev.crisiswatcher.client.dto.UserDTO;
  * Represents a shared object containing the {@link #userDTO}, {@link #tcpOutputBuffer} and {@link #udpOutputBuffer} 
  * that will be shared between I/O threads. <p>
  * 
- * The available constructors for this {@code UserProfile} include: <p>
+ * The available constructors for this {@code IOSharedResources} include: <p>
  * <ul>
  *  <li>{@link #IOSharedResources()}: Constructs a new IOSharedResources object</li>
  * </ul>
@@ -21,6 +21,11 @@ import dev.crisiswatcher.client.dto.UserDTO;
  *  <li>{@link #getTcpOutputBuffer()}: Returns the TCP output buffer stored in this {@code IOSharedResources} instance</li>
  *  <li>{@link #getUdpOutputBuffer()}: Returns the UDP output buffer stored in this {@code IOSharedResources} instance</li>
  * </ul>
+ * 
+ * <h3>IOSharedResources</h3>
+ * @since 1.0
+ * @version 1.0
+ * @author CrisisWatcher
  */
 public class IOSharedResources {
     /**
