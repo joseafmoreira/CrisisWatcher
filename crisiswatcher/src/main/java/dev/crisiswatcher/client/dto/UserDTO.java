@@ -34,7 +34,7 @@ public class UserDTO {
      * @return true if this user is logged in, false otherwise
      */
     public boolean isLogged() {
-        return !(name == null && profile == null);
+        return (name != null && profile != null);
     }
 
     /**

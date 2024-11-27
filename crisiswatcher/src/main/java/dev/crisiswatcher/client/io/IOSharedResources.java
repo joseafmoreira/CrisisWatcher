@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import dev.crisiswatcher.client.dto.RoomDTO;
 import dev.crisiswatcher.client.dto.UserDTO;
 
 /**
- * Represents a shared object containing the {@link #userDTO}, {@link #tcpOutputBuffer} and {@link #udpOutputBuffer} 
+ * Represents a shared object containing the {@link #userDTO}, {@link #roomDTO}, {@link #tcpOutputBuffer} and {@link #udpOutputBuffer} 
  * that will be shared between I/O threads. <p>
  * 
  * The available constructors for this {@code IOSharedResources} include: <p>
@@ -18,6 +19,7 @@ import dev.crisiswatcher.client.dto.UserDTO;
  * The operations available for this {@code IOSharedResources} include:
  * <ul>
  *  <li>{@link #getUserDTO()}: Returns the user stored in this {@code IOSharedResources} instance</li>
+ *  <li>{@link #getRoomDTO()}: Returns the room stored in this {@code IOSharedResources} instance</li>
  *  <li>{@link #getTcpOutputBuffer()}: Returns the TCP output buffer stored in this {@code IOSharedResources} instance</li>
  *  <li>{@link #getUdpOutputBuffer()}: Returns the UDP output buffer stored in this {@code IOSharedResources} instance</li>
  * </ul>
@@ -33,6 +35,10 @@ public class IOSharedResources {
      */
     private UserDTO userDTO;
     /**
+     * The room data transfer object
+     */
+    private RoomDTO roomDTO;
+    /**
      * The TCP output buffer
      */
     private List<String> tcpOutputBuffer;
@@ -46,6 +52,7 @@ public class IOSharedResources {
      */
     public IOSharedResources() {
         userDTO = new UserDTO();
+        roomDTO = new RoomDTO();
         tcpOutputBuffer = Collections.synchronizedList(new ArrayList<>());
         udpOutputBuffer = Collections.synchronizedList(new ArrayList<>());
     }
@@ -57,6 +64,15 @@ public class IOSharedResources {
      */
     public UserDTO getUserDTO() {
         return userDTO;
+    }
+
+    /**
+     * Returns the room stored in this {@code IOSharedResources} instance.
+     * 
+     * @return the room stored in this {@code IOSharedResources} instance
+     */
+    public RoomDTO getRoomDTO() {
+        return roomDTO;
     }
 
     /**
