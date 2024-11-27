@@ -10,16 +10,15 @@ public class Client {
     private TCPHandler tcpHandler;
 
     private Client() {
-        this.ioSharedResources = ioSharedResources;
+        ioSharedResources = new IOSharedResources();
         standardInput = new StandardInput(ioSharedResources);
     }
 
     public void start() {
         standardInput.start();
-        
     }
 
     public static void main(String[] args) {
-        
+        (new Client()).start();
     }
 }
