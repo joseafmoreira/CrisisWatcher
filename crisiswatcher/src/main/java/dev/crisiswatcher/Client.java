@@ -15,11 +15,16 @@ import dev.crisiswatcher.client.io.input.StandardInput;
  *  <li>{@link #Client()}: Constructs a new Client object</li>
  * </ul>
  * 
- * The operations available for this {@code IOSharedResources} include:
+ * The operations available for this {@code Client} include:
  * <ul>
  *  <li>{@link #start()}: Initializes the client process</li>
  *  <li>{@link #main(String[])}: Represents the client main entry function</li>
  * </ul>
+ * 
+ * <h3>Client</h3>
+ * @since 1.0
+ * @version 1.0
+ * @author CrisisWatcher
  */
 public class Client {
     /**

@@ -87,6 +87,7 @@ public class StandardInput extends Thread {
      */
     @Override
     public void run() {
+        System.out.println("Bem-vindo ao CrisisWatcher!\nCaso seja necessário, digite /help para obter a lista de comandos disponíveis");
         String input;
         try {
             while ((input = standardInput.readLine()) != null) {

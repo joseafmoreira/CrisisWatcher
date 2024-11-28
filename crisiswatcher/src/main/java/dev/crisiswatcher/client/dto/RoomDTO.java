@@ -14,11 +14,11 @@ import java.net.InetAddress;
  * The operations available for this {@code UserDTO} include: <p>
  * <ul>
  *  <li>{@link #getName()}: Returns this room's name</li>
- *  <li>{@link #setName()}: Sets the name for this room</li>
+ *  <li>{@link #setName(String)}: Sets the name for this room</li>
  *  <li>{@link #getIp()}: Returns this room's ip</li>
- *  <li>{@link #setIp()}: Sets the ip of this room</li>
+ *  <li>{@link #setIp(InetAddress)}: Sets the ip of this room</li>
  *  <li>{@link #getPort()}: Returns this room's port</li>
- *  <li>{@link #setPort()}: Sets the port of this room</li>
+ *  <li>{@link #setPort(int)}: Sets the port of this room</li>
  *  <li>{@link #equals(Object)}: Compares this room data transfer object with the specified object for equality</li>
  *  <li>{@link #toString()}: Returns a string representation of this room</li>
  * </ul> 
