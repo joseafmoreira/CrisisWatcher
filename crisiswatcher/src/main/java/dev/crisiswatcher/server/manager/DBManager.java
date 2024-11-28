@@ -18,13 +18,52 @@ import dev.crisiswatcher.server.model.RequestModel.RequestLevel;
 import dev.crisiswatcher.server.model.RoomModel;
 import dev.crisiswatcher.server.protocol.RoomProtocol;
 
+/**
+ * Singleton utility class that handles the database. <p>
+ * 
+ * The available constructors for this {@code Manager} include: <p>
+ * <ul>
+ *  <li>{@link #Manager()}: Constructs a new Manager object</li>
+ * </ul>
+ * 
+ * The operations available for this {@code Manager} include:
+ * <ul>
+ *  <li>{@link #getInstance()}: Returns this instance of the database manager</li>
+ *  <li>{@link #initializeDatabase()}: Initializes the database</li>
+ *  <li>{@link #checkTable(String)}: Checks if a table exists in the database or not</li>
+ *  <li>{@link #createTable(Statement, String, String)}: Creates a table in the database</li>
+ * </ul> 
+ * 
+ * <h3>Manager</h3>
+ * @since 1.0
+ * @version 1.0
+ * @author CrisisWatcher
+ */
 public class DBManager {
+    /**
+     * SQLite main parameters
+     */
     private static final String SQLITE = "jdbc:sqlite:";
+    /**
+     * Databse main folder
+     */
     private static final String MAIN_FOLDER = "db/";
+    /**
+     * CrisisWatcher database file location
+     */
     private static final String CRISISWATCHER  = SQLITE + MAIN_FOLDER + "crisiswatcher.db";
+    /**
+     * The main instance of the manager
+     */
     private static DBManager instance;
+    /**
+     * The SQLite connection to the CrisisWatcher database
+     */
     private static Connection connection;
 
+    /**
+     * Constructs a new Manager object.
+     */
     private DBManager() {
         try {
             FileHandler.createFolder(MAIN_FOLDER);
@@ -36,6 +75,11 @@ public class DBManager {
         }
     }
 
+    /**
+     * Returns this instance of the database manager.
+     * 
+     * @return this instance of the database manager
+     */
     public synchronized static DBManager getInstance() {
         if (instance == null) instance = new DBManager();
 
@@ -76,7 +120,7 @@ public class DBManager {
 
     private synchronized boolean insertUserToProfileRoom(int id, int profile) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO rommEntries (user,room) VALUES (?, ?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO roomEntries (user,room) VALUES (?, ?)");
             switch (profile) {
                 case 3:
                     insertUserToProfileRoom(preparedStatement, id, new String[]{"HIGHROOM", "MEDIUMROOM", "LOWROOM", "GENERALROOM"});
@@ -112,9 +156,9 @@ public class DBManager {
             if (resultSet.next()) {
                 Logger.addServerLogEntry("O utilizador " + username + " foi autenticado com sucesso");
                 output = resultSet.getInt(1) + " " + resultSet.getString(2) + " " + resultSet.getInt(4);
+            } else {
+                Logger.addServerLogEntry("O utilizador " + username + " não foi autenticado com sucesso");
             }
-
-            Logger.addServerLogEntry("O utilizador " + username + " não foi autenticado com sucesso");
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao autenticar o utilizador " + username + ": " + e.getMessage());
         }
@@ -205,6 +249,7 @@ public class DBManager {
 
 
         } catch (Exception e) {
+            e.printStackTrace();
             Logger.addServerLogEntry("Erro ao retornar RoomID: "+e.getMessage());
             return null;
         }
@@ -375,6 +420,8 @@ public class DBManager {
             }
         if(!checkTable("messages"))
             createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, chatRoomID INTEGER, Content TEXT, DateTime DATETIME, FOREIGN KEY(chatRoomID) REFERENCES rooms(uuid)");
+        if(!checkTable("private_messages"))
+            createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, Content TEXT, DateTime DATETIME, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
         if(!checkTable("requests"))
             createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, approved TEXT");
         if(!checkTable("roomEntries"))

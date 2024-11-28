@@ -6,7 +6,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import dev.crisiswatcher.server.manager.DBManager;
 import dev.crisiswatcher.server.model.UserModel;
+import dev.crisiswatcher.server.model.UserModel.UserProfile;
+import dev.crisiswatcher.server.protocol.AuthenticationProtocol;
+import dev.crisiswatcher.server.protocol.UserSettingsProtocol;
 
 /**
  * Handles the TCP client connection to the server in a separate thread.
@@ -44,11 +48,8 @@ public class TCPConnection extends Thread {
      * The server's TCP socket output print writer
      */
     private PrintWriter socketOutput;
-
-    /**
-     * The user associated with connection
-     */
-    private UserModel user;
+    private UserModel userModel;
+    private DBManager manager;
 
     /**
      * Constructs a new TCPConnection thread with a specified clientSocket.
@@ -59,21 +60,66 @@ public class TCPConnection extends Thread {
         this.clientSocket = clientSocket;
         socketInput = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         socketOutput = new PrintWriter(clientSocket.getOutputStream(), true);
+        userModel = new UserModel();
     }
 
     /**
-     * 
+     * Handles the TCP connection requests and responses
      */
     @Override
     public void run() {
-
+        String input, output;
+        try {
+            while ((input = socketInput.readLine()) != null) {
+                if (input.startsWith("/username") || input.startsWith("/password")) input += " " + userModel.getName();
+                String finalInput = input;
+                String socketOutputMessage = (input.equals("/close")) ? "/close" : DEFAULT_OUTPUT_MESSAGE;
+                if (socketOutputMessage.equals(DEFAULT_OUTPUT_MESSAGE)) {
+                    if (!userModel.isLogged()) {
+                        if ((output = AuthenticationProtocol.processInput(finalInput)) != null) {
+                            if (input.startsWith("/login") && !output.equals("Erro na autenticação")) {
+                                String[] splittedOutput = output.split(" ");
+                                userModel.setUuid(Integer.valueOf(splittedOutput[1]));
+                                userModel.setName(splittedOutput[2]);
+                                userModel.setProfile(UserProfile.getEnum(splittedOutput[3]));
+                                socketOutputMessage = sendUser("Utilizador autenticado com sucesso");
+                            } else {
+                                socketOutputMessage = output;
+                            }
+                        }
+                    } else {
+                        if ((output = UserSettingsProtocol.processInput(finalInput)) != null) {
+                            if (output.startsWith("/username")) {
+                                userModel.setName(output.split(" ")[1]);
+                                socketOutputMessage = sendUser("Nome de utilizador alterado com sucesso");
+                            } else {
+                                socketOutputMessage = output;
+                            }
+                        } else if (input.equals("/logout")) {
+                            userModel.setUuid(0);    
+                            userModel.setName(null);
+                            userModel.setProfile(null);
+                            socketOutputMessage = sendUser("Utilizador desconectado com sucesso");
+                        }
+                    }
+                }
+                socketOutput.println(socketOutputMessage);
+                if (socketOutputMessage.equals("/close")) interrupt();
+            }
+        } catch (IOException ignored) {}
     }
 
-    /**
-     * Returns user
-     * @return
-     */
-    public UserModel getUser(){
-        return user;
+    public UserModel getUser() {
+        return userModel;
+    }
+
+    private String sendUser(String message) {
+        String name = userModel.getName();
+        UserProfile profile = userModel.getProfile();
+
+        return "/user " + 
+                ((name == null) ? "null" : name) + " " + 
+                ((profile == null) ? "null" : profile.getKey()) + " " + 
+                message.replaceAll(" ", "_");
     }
 }

@@ -1,8 +1,8 @@
 package dev.crisiswatcher.server.protocol;
 
 import dev.crisiswatcher.server.manager.DBManager;
+import dev.crisiswatcher.server.model.UserModel.PasswordHandler;
 import dev.crisiswatcher.server.model.UserModel.UserProfile;
-import dev.crisiswatcher.server.password.PasswordHandler;
 
 public abstract class AuthenticationProtocol {
     public static String processInput(String input) {
@@ -19,7 +19,7 @@ public abstract class AuthenticationProtocol {
         String output = "Erro na autenticação";
         String[] splitedInput = input.split(" ");
         if (splitedInput.length == 3) {
-            splitedInput[2] = PasswordHandler.hashPassword(splitedInput[2]);
+            splitedInput[2] = PasswordHandler.cipher(splitedInput[2]);
             String loginResult = (DBManager.getInstance()).getUser(splitedInput[1], splitedInput[2]);
             if (loginResult != null) output = "/login " + loginResult;
         }
@@ -31,7 +31,7 @@ public abstract class AuthenticationProtocol {
         String output = "Erro no registro";
         String[] splitedInput = input.split(" ");
         if (splitedInput.length == 4) {
-            splitedInput[2] = PasswordHandler.hashPassword(splitedInput[2]);
+            splitedInput[2] = PasswordHandler.cipher(splitedInput[2]);
             UserProfile userProfile = UserProfile.getEnum(splitedInput[3]);
             if (userProfile != null) {
                 splitedInput[3] = String.valueOf(userProfile.getKey());

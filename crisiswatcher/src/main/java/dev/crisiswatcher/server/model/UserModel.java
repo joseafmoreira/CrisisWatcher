@@ -12,8 +12,6 @@ import org.apache.commons.codec.digest.DigestUtils;
  *  <li>{@link #setUuid(int)}: Sets the uuid for this user</li>
  *  <li>{@link #getName()}: Returns this user's name</li>
  *  <li>{@link #setName(String)}: Sets the name for this user</li>
- *  <li>{@link #getPassword()}: Returns this user's password</li>
- *  <li>{@link #setPassword(String)}: Sets the password for this user</li>
  *  <li>{@link #getProfile()}: Returns this user's profile</li>
  *  <li>{@link #setProfile(UserProfile)}: Sets the profile of this user</li>
  * </ul>
@@ -33,10 +31,6 @@ public class UserModel {
      */
     private String name;
     /**
-     * The password of this user
-     */
-    private String password;
-    /**
      * The profile of this user
      */
     private UserProfile profile;
@@ -47,7 +41,7 @@ public class UserModel {
      * @return true if this user is logged in, false otherwise
      */
     public boolean isLogged() {
-        return (uuid != 0 && name != null && password != null && profile != null);
+        return (uuid != 0 && name != null && profile != null);
     }
 
     /**
@@ -87,24 +81,6 @@ public class UserModel {
     }
 
     /**
-     * Returns this user's password.
-     * 
-     * @return this user's password
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * Sets the password for this user.
-     * 
-     * @param name the password to be set for this user
-     */
-    public void setPassword(String password) {
-        this.password = PasswordHandler.cipher(password);
-    }
-
-    /**
      * Returns this user's profile.
      * 
      * @return this user's profile
@@ -123,9 +99,9 @@ public class UserModel {
     }
 
     /**
-     * Represents the possible profile values that this user can have. <p>
+     * Represents the possible profile values that this user can have. 
      * Each profile is associated with a unique key and value pair to categorize 
-     * users based on their profiles.
+     * users based on their profiles. <p>
      * 
      * The available constructors for this {@code UserProfile} include: <p>
      * <ul>
@@ -267,14 +243,14 @@ public class UserModel {
      *  <li>{@link #cipher(String)}: Returns a MD5 hash for the given password</li>
      * </ul>
      */
-    private abstract class PasswordHandler {
+    public abstract class PasswordHandler {
         /**
          * Returns a MD5 hash for the given password.
          * 
          * @param password the specified password
          * @return a MD5 hash for the given password
          */
-        private static String cipher(String password) {
+        public static String cipher(String password) {
             return DigestUtils.md5Hex(password);
         }
     }
