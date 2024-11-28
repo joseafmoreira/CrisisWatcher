@@ -1,29 +1,41 @@
-package dev.crisiswatcher.client.dto;
+package dev.crisiswatcher.server.model;
 
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * User data transfer object containing an user's {@link #name} and {@link #profile}. <p>
+ * User model containing an user's {@link #uuid}, {@link #name}, {@link #password} and {@link #profile}. <p>
  * 
- * The operations available for this {@code UserDTO} include: <p>
+ * The operations available for this {@code UserModel} include: <p>
  * <ul>
  *  <li>{@link #isLogged()}: Checks if this user is logged in</li>
+ *  <li>{@link #getUuid()}: Returns this user's uuid</li>
+ *  <li>{@link #setUuid(int)}: Sets the uuid for this user</li>
  *  <li>{@link #getName()}: Returns this user's name</li>
  *  <li>{@link #setName(String)}: Sets the name for this user</li>
+ *  <li>{@link #getPassword()}: Returns this user's password</li>
+ *  <li>{@link #setPassword(String)}: Sets the password for this user</li>
  *  <li>{@link #getProfile()}: Returns this user's profile</li>
  *  <li>{@link #setProfile(UserProfile)}: Sets the profile of this user</li>
- *  <li>{@link #toString()}: Returns a string representation of this user</li>
  * </ul>
  * 
- * <h3>UserDTO</h3>
+ * <h3>UserModel</h3>
  * @since 1.0
  * @version 1.0
  * @author CrisisWatcher
  */
-public class UserDTO {
+public class UserModel {
+    /**
+     * The uuid of this user
+     */
+    private int uuid;
     /**
      * The name of this user
      */
     private String name;
+    /**
+     * The password of this user
+     */
+    private String password;
     /**
      * The profile of this user
      */
@@ -35,7 +47,25 @@ public class UserDTO {
      * @return true if this user is logged in, false otherwise
      */
     public boolean isLogged() {
-        return (name != null && profile != null);
+        return (uuid != 0 && name != null && password != null && profile != null);
+    }
+
+    /**
+     * Returns this user's uuid.
+     * 
+     * @return this user's uuid
+     */
+    public int getUuid() {
+        return uuid;
+    }
+
+    /**
+     * Sets the uuid for this user.
+     * 
+     * @param uuid the uuid to be set for this user
+     */
+    public void setUuid(int uuid) {
+        this.uuid = uuid;
     }
 
     /**
@@ -57,36 +87,39 @@ public class UserDTO {
     }
 
     /**
+     * Returns this user's password.
+     * 
+     * @return this user's password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * Sets the password for this user.
+     * 
+     * @param name the password to be set for this user
+     */
+    public void setPassword(String password) {
+        this.password = PasswordHandler.cipher(password);
+    }
+
+    /**
      * Returns this user's profile.
      * 
      * @return this user's profile
      */
-
     public UserProfile getProfile() {
         return profile;
     }
-
 
     /**
      * Sets the profile for this user.
      * 
      * @param profile the profile to be set for this user
      */
-
     public void setProfile(UserProfile profile) {
         this.profile = profile;
-    }
-
-
-    /**
-     * Returns a string representation of this user.
-     * 
-     * @return a string representation of this user
-     */
-    @Override
-    public String toString() {
-        return "Nome: " + name + "\n" + 
-               "Perfil: " + profile;
     }
 
     /**
@@ -142,13 +175,10 @@ public class UserDTO {
          * @param key the key of this profile
          * @param value the value of this profile
          */
-
         private UserProfile(int key, String value) {
             this.key = key;
             this.value = value;
         }
-
-
 
         /**
          * Returns a {@code UserProfile} enum or null based on a given input.
@@ -165,44 +195,36 @@ public class UserDTO {
                 userProfile = getByValue(input);
             }
 
-
             return userProfile;
         }
-
 
         /**
          * Returns the key of this profile.
          * 
          * @return the key of this profile
          */
-
         public int getKey() {
             return key;
         }
-
 
         /**
          * Returns the value of this profile.
          * 
          * @return the value of this profile
          */
-
         public String getValue() {
             return value;
         }
-
 
         /**
          * Returns a string representation of this profile.
          * 
          * @return a string representation of this profile
          */
-
         @Override
         public String toString() {
             return getValue();
         }
-
 
         /**
          * Returns a {@code UserProfile} enum of null based on a given key.
@@ -216,11 +238,9 @@ public class UserDTO {
                 case 1 -> UserProfile.LOW;
                 case 2 -> UserProfile.MEDIUM;
                 case 3 -> UserProfile.HIGH;
-
                 default -> null;
             };
         }
-
 
         /**
          * Returns a {@code UserProfile} enum of null based on a given value.
@@ -234,10 +254,28 @@ public class UserDTO {
                 case "Baixo" -> UserProfile.LOW;
                 case "Médio" -> UserProfile.MEDIUM;
                 case "Alto" -> UserProfile.HIGH;
-
                 default -> null;
             };
         }
     }
-}
 
+    /**
+     * Utility abstract class used to handle user's password. <p>
+     * 
+     * The operations available for this {@code PasswordHandler} include: <p>
+     * <ul>
+     *  <li>{@link #cipher(String)}: Returns a MD5 hash for the given password</li>
+     * </ul>
+     */
+    private abstract class PasswordHandler {
+        /**
+         * Returns a MD5 hash for the given password.
+         * 
+         * @param password the specified password
+         * @return a MD5 hash for the given password
+         */
+        private static String cipher(String password) {
+            return DigestUtils.md5Hex(password);
+        }
+    }
+}
