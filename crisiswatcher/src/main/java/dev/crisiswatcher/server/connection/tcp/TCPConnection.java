@@ -118,9 +118,7 @@ public class TCPConnection extends Thread {
                             int owner = userModel.getUuid();
                             RoomModel room = new RoomModel(roomName, owner, ip, port, code);
                             DBManager.getInstance().insertRoom(room);
-                            
                             new UDPConnection(room).start();
-                            
                         } else if(input.startsWith("/joinRoom")){
                             String[] splittedInput = input.split(" ");
                             String code = splittedInput[1];

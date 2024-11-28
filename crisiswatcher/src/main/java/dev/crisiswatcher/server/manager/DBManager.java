@@ -235,8 +235,6 @@ public class DBManager {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM rooms WHERE code = ?");
            
             preparedStatement.setString(1, code);
-
-            preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
@@ -444,12 +442,13 @@ public class DBManager {
         Statement statement = connection.createStatement();
         if (!checkTable("users")) 
             createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");
-        if(!checkTable("rooms"))
+        if(!checkTable("rooms")) {
             createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, owner INTEGER, address TEXT, port INTEGER, code TEXT, FOREIGN KEY(owner) REFERENCES users(uuid)");
             boolean result = createDefaultRooms();
             if(!result){
                 Logger.addServerLogEntry("Erro ao criar default rooms");
             }
+        }
         if(!checkTable("messages"))
             createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, chatRoomID INTEGER, Content TEXT, DateTime DATETIME, FOREIGN KEY(chatRoomID) REFERENCES rooms(uuid)");
         if(!checkTable("private_messages"))
