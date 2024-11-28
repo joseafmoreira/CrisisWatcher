@@ -1,6 +1,5 @@
 package dev.crisiswatcher.client.dto;
 
-
 /**
  * User data transfer object containing an user's {@link #name} and {@link #profile}. <p>
  * 
