@@ -67,25 +67,25 @@ public abstract class FileHandler {
     }
 
     /**
+     * Returns the lines of a file.
+     * 
+     * @param path the specified path
+     * @return the lines of a file
+     */
+    public static List<String> readFile(String path) {
+        try {
+            return Files.readAllLines(Paths.get(path));
+        } catch (IOException ignored) {}
+
+        return null;
+    }
+
+    /**
      * Creates a folder using a File instance.
      * 
      * @param folder the specified folder File instance
      */
     private static void createFolder(File folder) {
         if (!folder.exists()) folder.mkdirs();
-    }
-
-    /**
-     * Returns the lines of a file.
-     * 
-     * @param path the specified path
-     * @return the lines of a file
-     */
-    private static List<String> readFile(String path) {
-        try {
-            return Files.readAllLines(Paths.get(path));
-        } catch (IOException ignored) {}
-
-        return null;
     }
 }

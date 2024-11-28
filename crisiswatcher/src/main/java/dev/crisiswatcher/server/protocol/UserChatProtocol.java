@@ -6,25 +6,32 @@ import dev.crisiswatcher.server.model.UserModel;
 public abstract class UserChatProtocol {
     public static String processInput(UserModel userModel, String input) {
         String output = null;
-        if (input.startsWith("/chat")) {
+        if (input.startsWith("/msg")) {
             String[] splittedInput = input.split(" ");
-            if (splittedInput.length == 2) 
-                output = getChat(userModel.getName(), splittedInput[1]);
-        } else if (input.startsWith("/msg")) {
-            output = sendMessage("output", "input", "output");
+            if (splittedInput.length > 2) {
+                String content = "";
+                for (int i = 2; i < splittedInput.length; i++) 
+                content += splittedInput[i] + " ";
+                output = sendMessage(userModel.getName(), userModel.getUuid(), splittedInput[1], content);
+            }
+        } else if (input.contains("/chat")) {
+            String[] splittedInput = input.split(" ");
+            if (splittedInput.length == 2)
+                output = getMessages(userModel.getName(), userModel.getUuid(), splittedInput[1], true);
+        } else if (input.equals("/johncena")) {
+            output = getMessages(userModel.getName(), userModel.getUuid(), "all", false);
         }
         return output;
     }
 
-    private static String getChat(String sender, String receiver) {
-        String output = "Erro ao obter o chat com o cliente " + receiver;
-        String chat = (Manager.getInstance()).getChat(sender, receiver);
-        if (!chat.equals("O cliente não existe")) output = chat;
+    private static String sendMessage(String senderName, int senderID, String receiver, String content) {
+        String output = "Erro ao enviar mensagem para o cliente " + receiver;
+        boolean result = (Manager.getInstance()).sendPrivateMessage(senderName, senderID, receiver, content.substring(0, content.length() - 1));
+        if (result) output = "A mensagem foi enviada com sucesso para o utilizador " + senderName;
         return output;
     }
 
-    private static String sendMessage(String sender, String receiver, String content) {
-        String output = "Erro ao enviar mensagem para o cliente " + receiver;
-        return output;
+    private static String getMessages(String senderName, int senderID, String receiver, boolean all) {
+        return (Manager.getInstance()).getMessages(senderName, senderID, receiver, all);
     }
 }

@@ -96,6 +96,14 @@ public class SocketInput extends Thread {
                     } catch (UnknownHostException ignored) {}
                     roomDTO.setPort(Integer.valueOf(splittedOutput[3]));
                     output = DEFAULT_ROOM_CHANGE_MESSAGE;
+                } else if (output.startsWith("/msgs")) {
+                    String[] splittedOutput = output.split(" ");
+                    String outputMessage = "";
+                    for (int i = 1; i < splittedOutput.length; i++) {
+                        String[] splittedMessage = splittedOutput[i].split("/");
+                        outputMessage += "[" + splittedMessage[1].trim() + " -> " + splittedMessage[2].trim() + "]: " + splittedMessage[3].trim().replaceAll("_", " ").trim() + "\n";
+                    }
+                    output = outputMessage.substring(0, outputMessage.length() - 1);
                 }
                 System.out.println(output.equals(DEFAULT_OUTPUT_MESSAGE) ? INVALID_COMMAND_MESSAGE : output);
             }

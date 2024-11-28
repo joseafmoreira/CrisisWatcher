@@ -125,7 +125,6 @@ public class Manager {
                 Logger.addServerLogEntry("O utilizador " + username + " foi autenticado com sucesso");
                 output = resultSet.getInt(1) + " " + resultSet.getString(2) + " " + resultSet.getInt(4);
             }
-
             Logger.addServerLogEntry("O utilizador " + username + " não foi autenticado com sucesso");
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao autenticar o utilizador " + username + ": " + e.getMessage());
@@ -151,16 +150,13 @@ public class Manager {
                 statement.setString(2, oldUsername);
                 statement.executeUpdate();
                 Logger.addServerLogEntry("Nome de utilizador alterado de " + oldUsername + " para " + newUsername + " com sucesso");
-
                 return true;
             }
             Logger.addServerLogEntry("Não foi possível alterar o nome de utilizador de " + oldUsername + " para " + newUsername);
-
-            return false;
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao alterar o nome de utilizador: " + e.getMessage());
-            return false;
         }
+        return false;
     }
 
     /**
@@ -182,13 +178,11 @@ public class Manager {
 
                 return true;
             }
-            Logger.addServerLogEntry("A palavra-passe do utilizador " + username + " não foi alterada");
-
-            return false;
+            Logger.addServerLogEntry("A palavra-passe do utilizador " + username + " não foi alterada"); 
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao alterar a palavra-passe do utilizador " + username + ": " + e.getMessage());
-            return false;
         }
+        return false;
     }
 
     /**
@@ -211,18 +205,52 @@ public class Manager {
                 return true;
             }
             Logger.addServerLogEntry("O perfil do utilizador " + username + " não foi alterado");
-
-            return false;
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao alterar o perfil do utilizador " + username + ": " + e.getMessage());
-            return false;
         }
+        return false;
     }
 
-    public synchronized String getChat(String sender, String receiver) {
-        String result = "O cliente não existe";
+    public synchronized boolean sendPrivateMessage(String senderName, int senderID, String receiver, String content) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM private_messages WHERE sender = ? OR receiver = ? AND sender = ? OR receiver = ?");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO private_messages (sender, receiver, content, seen) VALUES (?, ?, ?, ?)");
+            ResultSet receiverResultSet = getUser(receiver);
+            if (receiverResultSet != null && receiverResultSet.next()) {
+                statement.setInt(1, senderID);
+                statement.setInt(2, receiverResultSet.getInt(1));
+                statement.setString(3, content);
+                statement.setInt(4, 0);
+                statement.executeUpdate();
+                Logger.addServerLogEntry("A mensagem de " + senderName + " para " + receiver + " foi registada com sucesso");
+            }
+            return true;
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao enviar uma mensagem para o utilizador " + receiver + ": " + e.getMessage());
+        }
+        return false;
+    }
+
+    public synchronized String getMessages(String senderName, int senderID, String receiver, boolean all) {
+        String result = "Erro ao obter as mensagens do utilizador " + senderName;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM private_messages WHERE sender = ?" + ((all) ? " AND seen = 0" : "") + ((!receiver.equals("all")) ? " AND receiver = ?" : ""));
+            statement.setInt(1, senderID);
+            if (!receiver.equals("all")) {
+                ResultSet userResultSet = getUser(receiver);
+                if (userResultSet != null && userResultSet.next()) 
+                    statement.setInt(2, userResultSet.getInt(1));
+                else 
+                    throw new SQLException("User " + receiver + " doesn't exist");
+            }
+            ResultSet resultSet = statement.executeQuery();
+            result = "/msgs ";
+            while (resultSet.next()) 
+                result += resultSet.getInt(1) + "/" + getUser(resultSet.getInt(2)).getString(2) + "/" + getUser(resultSet.getInt(3)).getString(2) + "/" + resultSet.getString(4).replaceAll(" ", "_") + " ";
+            Logger.addServerLogEntry("As mensagens do utilizador " + senderName + " foram obtidas com sucesso");
+            result = result.substring(0, result.length() - 1);
+        } catch (SQLException e) {
+            if (e.getMessage().equals("User " + receiver + " doesn't exist")) result = "Não existem mensagens trocadas com o utilizador " + receiver;
+            Logger.addServerLogEntry("Erro ao obter as mensagens do utilizador " + senderName + ": " + e.getMessage());
         }
         return result;
     }
@@ -237,7 +265,7 @@ public class Manager {
         if (!checkTable("users")) 
             createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");
         if (!checkTable("private_messages"))
-            createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, Content TEXT, DateTime DATETIME, int seen, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
+            createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, content TEXT, seen int, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
     }
 
     /**
@@ -276,12 +304,23 @@ public class Manager {
             preparedStatement.setString(1, username);
             ResultSet resultSet = preparedStatement.executeQuery();
             Logger.addServerLogEntry("O utilizador " + username + " foi obtido da base de dados");
-
             return resultSet;
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao obter um utilizador: " + e.getMessage());
         }
+        return null;
+    }
 
+    private synchronized ResultSet getUser(int uuid) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE uuid = ?");
+            preparedStatement.setInt(1, uuid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            Logger.addServerLogEntry("O utilizador " + resultSet.getString(2) + " foi obtido da base de dados");
+            return resultSet;
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao obter um utilizador: " + e.getMessage());
+        }
         return null;
     }
 }

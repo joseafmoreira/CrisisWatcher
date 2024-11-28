@@ -1,6 +1,7 @@
 package dev.crisiswatcher.server.logger;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import dev.crisiswatcher.server.file.FileHandler;
 
@@ -38,6 +39,17 @@ public abstract class Logger {
     }
 
     /**
+     * Returns the last entries of the server log file.
+     * 
+     * @return the last entries of the server log file
+     */
+    public static List<String> getLastServerLogEntries(int entriesNumber) {
+        List<String> entries = getLogEntries(SERVER_FILE);
+        if (entries.size() <= entriesNumber) return entries;
+        return entries.subList(0, entriesNumber - 1);
+    }
+
+    /**
      * Adds an entry to a log file.
      * 
      * @param path the specified path
@@ -46,5 +58,16 @@ public abstract class Logger {
     private static void addLogEntry(String path, String message) {
         FileHandler.createFile(path);
         FileHandler.appendFile(path, "[" + LocalDateTime.now() + "]: " + message);
+    }
+
+    /**
+     * Returns the last entries of a log file.
+     * 
+     * @param path the specified log path
+     * @return the last entries of a log file
+     */
+    private static List<String> getLogEntries(String path) {
+        FileHandler.createFile(path);
+        return FileHandler.readFile(path);
     }
 }

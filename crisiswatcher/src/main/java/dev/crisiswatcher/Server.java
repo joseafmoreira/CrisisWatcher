@@ -11,6 +11,7 @@ import java.util.List;
 
 import dev.crisiswatcher.server.connection.tcp.TCPConnection;
 import dev.crisiswatcher.server.logger.Logger;
+import dev.crisiswatcher.server.report.ReportHandler;
 
 /**
  * Represents the server's main entry class
@@ -57,6 +58,7 @@ public class Server {
      * The server's connection list
      */
     private List<TCPConnection> connections;
+    private ReportHandler reportHandler;
 
     /**
      * Constructs a new Server object.
@@ -66,6 +68,7 @@ public class Server {
             serverSocket = new ServerSocket(PORT, BACKLOG, ADDRESS);
             serverSocket.setSoTimeout(TIMEOUT);
             connections = Collections.synchronizedList(new ArrayList<>());
+            reportHandler = new ReportHandler(connections);
             Logger.addServerLogEntry("O servidor foi iniciado com sucesso em " + ADDRESS.toString().split("/")[1] + ":" + PORT);
         } catch (IOException e) {
             Logger.addServerLogEntry("Erro ao iniciar o servidor: " + e.getMessage());
@@ -77,6 +80,7 @@ public class Server {
      * Initializes the server process.
      */
     public void start() {
+        reportHandler.start();
         while (true) {
             try {
                 connections.add(new TCPConnection(serverSocket.accept()));
