@@ -71,90 +71,90 @@ public class RoomModel {
     }
 
     /**
+     * Returns this room's name.
      * 
-     * 
-     * @return
+     * @return this room's name
      */
     public String getName() {
         return name;
     }
 
     /**
+     * Sets the name for this room.
      * 
-     * 
-     * @param name
+     * @param name the name to be set for this room
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
+     * Returns this room's owner.
      * 
-     * 
-     * @return
+     * @return this room's owner
      */
     public int getOwner() {
         return owner;
     }
 
     /**
+     * Sets the owner for this room.
      * 
-     * 
-     * @param owner
+     * @param owner the owner to be set for this room
      */
     public void setOwner(int owner) {
         this.owner = owner;
     }
 
     /**
+     * Returns this room's ip.
      * 
-     * 
-     * @return
+     * @return this room's ip
      */
     public InetAddress getIp() {
         return ip;
     }
 
     /**
+     * Sets the ip for this room.
      * 
-     * 
-     * @param ip
+     * @param ip the ip to be set for this room
      */
     public void setIp(InetAddress ip) {
         this.ip = ip;
     }
 
     /**
+     * Returns this room's port.
      * 
-     * 
-     * @return
+     * @return this room's port
      */
     public int getPort() {
         return port;
     }
 
     /**
+     * Sets the port for this room.
      * 
-     * 
-     * @param port
+     * @param port the port to be set for this room
      */
     public void setPort(int port) {
         this.port = port;
     }
 
     /**
+     * Returns this room's code.
      * 
-     * 
-     * @return
+     * @return this room's code
      */
     public String getCode() {
         return code;
     }
 
     /**
+     * Sets the code for this room.
      * 
-     * 
-     * @param code
+     * @param code the code to be set for this room
      */
     public void setCode(String code) {
         this.code = code;
