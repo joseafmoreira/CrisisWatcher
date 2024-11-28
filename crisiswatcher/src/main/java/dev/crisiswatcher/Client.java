@@ -1,32 +1,80 @@
 package dev.crisiswatcher;
 
+import java.io.IOException;
+
+import dev.crisiswatcher.client.handler.TCPHandler;
+import dev.crisiswatcher.client.handler.UDPHandler;
 import dev.crisiswatcher.client.io.IOSharedResources;
 import dev.crisiswatcher.client.io.input.StandardInput;
-import dev.crisiswatcher.client.tcp.TCPHandler;
 
+/**
+ * Represents the client's main entry class
+ * 
+ * The available constructors for this {@code Client} include: <p>
+ * <ul>
+ *  <li>{@link #Client()}: Constructs a new Client object</li>
+ * </ul>
+ * 
+ * The operations available for this {@code Client} include:
+ * <ul>
+ *  <li>{@link #start()}: Initializes the client process</li>
+ *  <li>{@link #main(String[])}: Represents the client main entry function</li>
+ * </ul>
+ * 
+ * <h3>Client</h3>
+ * @since 1.0
+ * @version 1.0
+ * @author CrisisWatcher
+ */
 public class Client {
+    /**
+     * The I/O threads shared resources
+     */
     private IOSharedResources ioSharedResources;
+    /**
+     * The standard input thread
+     */
     private StandardInput standardInput;
+    /**
+     * The TCP Handler
+     */
     private TCPHandler tcpHandler;
+    /**
+     * The UDP Handler
+     */
+    private UDPHandler udpHandler;
 
-    public Client() {
-        ioSharedResources = new IOSharedResources();
-        standardInput = new StandardInput(ioSharedResources);
-        tcpHandler = new TCPHandler(ioSharedResources);
-    }
-
-    public void start() {
-        standardInput.start();
-        if (!tcpHandler.isInterrupted()) {
-            tcpHandler.start();
-            System.out.println("Bem-vindo ao CrisisWatcher!\nCaso seja necessário, digite /help para obter a lista de comandos disponíveis");
-            while (true) 
-                if (tcpHandler.isInterrupted()) System.exit(0);
-        } else {
+    /**
+     * Constructs a new Client object.
+     */
+    private Client() {
+        try {
+            ioSharedResources = new IOSharedResources();
+            standardInput = new StandardInput(ioSharedResources);
+            tcpHandler = new TCPHandler(ioSharedResources);
+            udpHandler = new UDPHandler(ioSharedResources);
+        } catch (IOException e) {
+            e.printStackTrace();
             System.exit(0);
         }
     }
 
+    /**
+     * Initializes the client process.
+     */
+    public void start() {
+        standardInput.start();
+        tcpHandler.start();
+        udpHandler.start();
+        while (!standardInput.isInterrupted() && !tcpHandler.isInterrupted() && !udpHandler.isInterrupted()) {}
+        System.exit(0);
+    }
+
+    /**
+     * Represents the client main entry function.
+     * 
+     * @param args the specified args at the start of the program
+     */
     public static void main(String[] args) {
         (new Client()).start();
     }
