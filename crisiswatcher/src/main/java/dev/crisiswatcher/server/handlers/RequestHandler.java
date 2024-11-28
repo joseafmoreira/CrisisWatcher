@@ -5,11 +5,11 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-import dev.crisiswatcher.logger.Logger;
-import dev.crisiswatcher.schema.Request;
-import dev.crisiswatcher.schema.Request.RequestLevel;
+import dev.crisiswatcher.server.logger.Logger;
+import dev.crisiswatcher.server.schema.Request;
+import dev.crisiswatcher.server.schema.Request.RequestLevel;
 import dev.crisiswatcher.server.manager.DBManager;
-import dev.crisiswatcher.schema.Room;
+import dev.crisiswatcher.server.schema.Room;
 
 public class RequestHandler extends Thread {
     private Request request;
@@ -26,17 +26,17 @@ public class RequestHandler extends Thread {
     private InetAddress highGroup;
     private InetAddress mediumGroup;
     private InetAddress lowGroup;
-    
-    
+
+    @SuppressWarnings("deprecation")
     public RequestHandler(Request request) throws IOException{
         this.request = request;
 
         this.dbManager = DBManager.getInstance();
 
-        this.General = dbManager.getGeneralRoom();
-        this.Low = dbManager.getLowRoom();
-        this.Medium = dbManager.getMediumRoom();
-        this.High = dbManager.getHighRoom();
+        this.General = dbManager.getRoomByCode("GENERALROOM");
+        this.Low = dbManager.getRoomByCode("LOWROOM");
+        this.Medium = dbManager.getRoomByCode("MEDIUMROOM");
+        this.High = dbManager.getRoomByCode("HIGHROOM");
 
         this.GeneralSocket = new MulticastSocket(General.getPort());
         this.generalGroup = InetAddress.getByName(General.getAddress());
@@ -85,18 +85,24 @@ public class RequestHandler extends Thread {
             }
 
         }
-        while(!request.isApproved()){
+        while (request.isApproved() == null) {}
+        if(request.isApproved()){
             try {
-                Thread.sleep(20000);    
+                sendMessage(request.getRequest().toString(), GeneralSocket, General.getPort(), generalGroup);
             } catch (Exception e) {
+                Logger.addServerLogEntry("Erro a enviar REQUEST NOTIFICATION: "+e.getMessage());
             }
+            
+        }else {
+            Logger.addServerLogEntry("Request Negado");
         }
+    
     }
 
     public void sendMessage(String message, MulticastSocket socket, int port, InetAddress group) throws IOException {
         byte[] buffer = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, port);
         socket.send(packet);
-        System.out.println("Message sent: " + message);
+        Logger.addServerLogEntry("Message sent: " + message);
     }
 }

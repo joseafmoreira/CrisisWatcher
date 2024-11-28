@@ -1,5 +1,6 @@
 package dev.crisiswatcher.client.dto;
 
+
 /**
  * User data transfer object containing an user's {@link #name} and {@link #profile}. <p>
  * 
@@ -60,18 +61,22 @@ public class UserDTO {
      * 
      * @return this user's profile
      */
+
     public UserProfile getProfile() {
         return profile;
     }
+
 
     /**
      * Sets the profile for this user.
      * 
      * @param profile the profile to be set for this user
      */
+
     public void setProfile(UserProfile profile) {
         this.profile = profile;
     }
+
 
     /**
      * Returns a string representation of this user.
@@ -137,10 +142,13 @@ public class UserDTO {
          * @param key the key of this profile
          * @param value the value of this profile
          */
+
         private UserProfile(int key, String value) {
             this.key = key;
             this.value = value;
         }
+
+
 
         /**
          * Returns a {@code UserProfile} enum or null based on a given input.
@@ -157,36 +165,44 @@ public class UserDTO {
                 userProfile = getByValue(input);
             }
 
+
             return userProfile;
         }
+
 
         /**
          * Returns the key of this profile.
          * 
          * @return the key of this profile
          */
+
         public int getKey() {
             return key;
         }
+
 
         /**
          * Returns the value of this profile.
          * 
          * @return the value of this profile
          */
+
         public String getValue() {
             return value;
         }
+
 
         /**
          * Returns a string representation of this profile.
          * 
          * @return a string representation of this profile
          */
+
         @Override
         public String toString() {
             return getValue();
         }
+
 
         /**
          * Returns a {@code UserProfile} enum of null based on a given key.
@@ -200,9 +216,11 @@ public class UserDTO {
                 case 1 -> UserProfile.LOW;
                 case 2 -> UserProfile.MEDIUM;
                 case 3 -> UserProfile.HIGH;
+
                 default -> null;
             };
         }
+
 
         /**
          * Returns a {@code UserProfile} enum of null based on a given value.
@@ -216,8 +234,10 @@ public class UserDTO {
                 case "Baixo" -> UserProfile.LOW;
                 case "Médio" -> UserProfile.MEDIUM;
                 case "Alto" -> UserProfile.HIGH;
+
                 default -> null;
             };
         }
     }
 }
+

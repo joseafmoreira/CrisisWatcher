@@ -30,6 +30,7 @@ public abstract class FileHandler {
      * 
      * @param path the specified path
      */
+
     public static void createFolder(String path) {
         File folder = new File(path);
         createFolder(folder);
@@ -40,6 +41,7 @@ public abstract class FileHandler {
      * 
      * @param path the specified path
      */
+
     public static void createFile(String path) {
         File file = new File(path);
         createFolder(file.getParentFile());
@@ -50,12 +52,14 @@ public abstract class FileHandler {
         }
     }
 
+
     /**
      * Appends a message to the top of a specified file.
      * 
      * @param path the specified file's path
      * @param message the specified message
      */
+
     public static void appendFile(String path, String message) {
         List<String> lines = readFile(path);
         if (lines != null) {
@@ -66,14 +70,17 @@ public abstract class FileHandler {
         }
     }
 
+
     /**
      * Creates a folder using a File instance.
      * 
      * @param folder the specified folder File instance
      */
+
     private static void createFolder(File folder) {
         if (!folder.exists()) folder.mkdirs();
     }
+
 
     /**
      * Returns the lines of a file.
@@ -81,6 +88,7 @@ public abstract class FileHandler {
      * @param path the specified path
      * @return the lines of a file
      */
+
     private static List<String> readFile(String path) {
         try {
             return Files.readAllLines(Paths.get(path));

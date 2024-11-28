@@ -5,14 +5,19 @@ import java.net.MulticastSocket;
 
 import dev.crisiswatcher.client.dto.RoomDTO;
 import dev.crisiswatcher.client.io.IOSharedResources;
+
+import dev.crisiswatcher.client.dto.UserDTO;
+
 import dev.crisiswatcher.client.io.input.MulticastSocketInput;
 import dev.crisiswatcher.client.io.output.MulticastSocketOutput;
+
 
 public class UDPHandler extends Thread {
     private static final int SO_TIMEOUT= 1000;
     private MulticastSocket multicastSocket;
     private MulticastSocketInput multicastSocketInput;
     private MulticastSocketOutput multicastSocketOutput;
+
 
     @SuppressWarnings("deprecation")
     public UDPHandler(IOSharedResources ioSharedResources, RoomDTO roomDTO) {
@@ -29,16 +34,21 @@ public class UDPHandler extends Thread {
                 interrupt();
             }
         } else {
+
             interrupt();
         }
     }
 
     @Override
     public void run() {
+
+        UserDTO user = ioSharedResources.getUser();
+
         multicastSocketInput.start();
         multicastSocketOutput.start();
         while (true) 
             if (multicastSocketInput.isInterrupted() || multicastSocketOutput.isInterrupted()) break;
         interrupt();
+
     }
 }

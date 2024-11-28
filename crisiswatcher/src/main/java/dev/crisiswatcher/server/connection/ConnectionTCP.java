@@ -6,13 +6,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import dev.crisiswatcher.logger.Logger;
-import dev.crisiswatcher.protocol.AuthenticationProtocol;
-import dev.crisiswatcher.protocol.RoomProtocol;
-import dev.crisiswatcher.protocol.UserSettingsProtocol;
-import dev.crisiswatcher.schema.Room;
-import dev.crisiswatcher.schema.User;
-import dev.crisiswatcher.schema.User.UserProfile;
+import dev.crisiswatcher.server.logger.Logger;
+import dev.crisiswatcher.server.protocol.AuthenticationProtocol;
+import dev.crisiswatcher.server.protocol.RoomProtocol;
+import dev.crisiswatcher.server.protocol.UserSettingsProtocol;
+import dev.crisiswatcher.server.schema.Room;
+import dev.crisiswatcher.server.schema.User;
+import dev.crisiswatcher.server.schema.User.UserProfile;
 import dev.crisiswatcher.server.manager.DBManager;
 
 public class ConnectionTCP extends Thread {

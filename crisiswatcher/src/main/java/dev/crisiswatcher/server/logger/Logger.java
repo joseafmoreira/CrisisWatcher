@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import dev.crisiswatcher.server.file.FileHandler;
 
+
 /**
  * Abstract class used to manage server's logs. <p>
  * 
@@ -33,9 +34,11 @@ public abstract class Logger {
      * 
      * @param message the specified message
      */
+
     public static void addServerLogEntry(String message) {
         addLogEntry(SERVER_FILE, message);
     }
+
 
     /**
      * Adds an entry to a log file.
@@ -43,6 +46,7 @@ public abstract class Logger {
      * @param path the specified path
      * @param message the specified message
      */
+
     private static void addLogEntry(String path, String message) {
         FileHandler.createFile(path);
         FileHandler.appendFile(path, "[" + LocalDateTime.now() + "]: " + message);

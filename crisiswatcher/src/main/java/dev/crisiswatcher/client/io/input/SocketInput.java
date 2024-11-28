@@ -11,6 +11,7 @@ import dev.crisiswatcher.client.dto.UserDTO;
 import dev.crisiswatcher.client.dto.UserDTO.UserProfile;
 import dev.crisiswatcher.client.io.IOSharedResources;
 
+
 /**
  * Handles the socket input in a separate thread. <p>
  * 
@@ -77,6 +78,9 @@ public class SocketInput extends Thread {
      */
     @Override
     public void run() {
+
+        UserDTO user = ioSharedResources.getUser();
+
         String output;
         try {
             while ((output = socketInput.readLine()) != null) {

@@ -10,12 +10,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.crisiswatcher.file.FileHandler;
-import dev.crisiswatcher.logger.Logger;
-import dev.crisiswatcher.schema.Message;
-import dev.crisiswatcher.schema.Request;
-import dev.crisiswatcher.schema.Request.RequestLevel;
-import dev.crisiswatcher.schema.Room;
+import dev.crisiswatcher.server.file.FileHandler;
+import dev.crisiswatcher.server.logger.Logger;
+import dev.crisiswatcher.server.protocol.RoomProtocol;
+import dev.crisiswatcher.server.schema.Message;
+import dev.crisiswatcher.server.schema.Request;
+import dev.crisiswatcher.server.schema.Request.RequestLevel;
+import dev.crisiswatcher.server.schema.Room;
 
 public class DBManager {
     private static final String SQLITE = "jdbc:sqlite:";
@@ -52,6 +53,15 @@ public class DBManager {
                 preparedStatement.executeUpdate();
                 Logger.addServerLogEntry("O utilizador " + username + " foi inserido com sucesso");
 
+                int id = getUser(username).getInt(1);
+
+                boolean result = insertUserToProfileRoom(id, profile);
+
+                if(!result){
+                    Logger.addServerLogEntry("Erro ao adicionar o user a sua respetiva room");
+                    return false;
+                }
+
                 return true;
             }
             Logger.addServerLogEntry("O utilizador " + username + " já existe");
@@ -60,6 +70,34 @@ public class DBManager {
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao inserir um utilizador: " + e.getMessage());
 
+            return false;
+        }
+    }
+
+    private synchronized boolean insertUserToProfileRoom(int id, int profile) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO rommEntries (user,room) VALUES (?, ?)");
+            switch (profile) {
+                case 3:
+                    insertUserToProfileRoom(preparedStatement, id, new String[]{"HIGHROOM", "MEDIUMROOM", "LOWROOM", "GENERALROOM"});
+                    return true;
+                case 2:
+                    insertUserToProfileRoom(preparedStatement, id, new String[]{"MEDIUMROOM", "LOWROOM", "GENERALROOM"});
+                    return true;
+                case 1:
+                    insertUserToProfileRoom(preparedStatement, id, new String[]{"LOWROOM", "GENERALROOM"});
+                    return true;
+                case 0:
+                    insertUserToProfileRoom(preparedStatement, id, new String[]{"GENERALROOM"});
+                    return true;
+                default:
+                    Logger.addServerLogEntry("Erro profile level inválido");
+                    return false;
+            }
+
+
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao adicionar o User nas suas respetivas default rooms: " +e.getMessage());
             return false;
         }
     }
@@ -145,6 +183,30 @@ public class DBManager {
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao alterar o perfil do utilizador " + username + ": " + e.getMessage());
             return false;
+        }
+    }
+
+    public synchronized Room getRoomByCode(String code){
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM rooms WHERE code = ?");
+           
+            preparedStatement.setString(1, code);
+
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                Logger.addServerLogEntry("Room retornado com sucesso");
+                Room room = new Room(resultSet.getString(2), resultSet.getInt(3), resultSet.getString(4), resultSet.getInt(5), resultSet.getString(6));
+                room.setUuid(resultSet.getInt(1));
+                return room;
+            }
+            return null;
+
+
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao retornar RoomID: "+e.getMessage());
+            return null;
         }
     }
 
@@ -307,10 +369,35 @@ public class DBManager {
             createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");
         if(!checkTable("rooms"))
             createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, owner INTEGER, address TEXT, port INTEGER, code TEXT, FOREIGN KEY(owner) REFERENCES users(uuid)");
+            boolean result = createDefaultRooms();
+            if(!result){
+                Logger.addServerLogEntry("Erro ao criar default rooms");;
+            }
         if(!checkTable("messages"))
             createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, chatRoomID INTEGER, Content TEXT, DateTime DATETIME, FOREIGN KEY(chatRoomID) REFERENCES rooms(uuid)");
         if(!checkTable("requests"))
-            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, approved BOOLEAN");
+            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, approved TEXT");
+        if(!checkTable("roomEntries"))
+            createTable(statement, "roomEntries", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, user INTEGER, room INTEGER, FOREIGN KEY(user) REFERENCES users(uuid), FOREIGN KEY(room) REFERENCES rooms(uuid)");
+    }
+
+    private boolean createDefaultRooms() throws SQLException{
+        Room High = new Room("High", 0, RoomProtocol.getIp(),6789, "HIGHROOM");
+        Room Medium = new Room("Medium", 0,RoomProtocol.getIp(),6789,"MEDIUMROOM" );
+        Room Low = new Room("Low", 0, RoomProtocol.getIp(),6789,"LOWROOM");
+        Room General = new Room("General", 0 , RoomProtocol.getIp(),6789, "GENERALROOM");
+
+        try {
+            insertRoom(High);
+            insertRoom(Medium);
+            insertRoom(Low);
+            insertRoom(General);
+            return true;
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao criar as default rooms: "+e.getMessage());
+            return false;
+        }
+        
     }
 
     private boolean checkTable(String name) throws SQLException {
@@ -342,5 +429,41 @@ public class DBManager {
 
             return null;
         }
+    }
+
+    private synchronized int getRoomId(String code){
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM rooms WHERE code = ?");
+           
+            preparedStatement.setString(1, code);
+
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                Logger.addServerLogEntry("RoomID retornado com sucesso");
+
+                return resultSet.getInt(1);
+            }
+            return -1;
+
+
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao retornar RoomID: "+e.getMessage());
+            return -1;
+        }
+    }
+
+    private synchronized void insertUserToProfileRoom(PreparedStatement preparedStatement, int id, String[] rooms) {
+        for (String room : rooms) 
+            insertUserToProfileRoom(preparedStatement, id, room);
+    }
+
+    private synchronized void insertUserToProfileRoom(PreparedStatement preparedStatement, int id, String name) {
+        try {
+            preparedStatement.setInt(1, id);
+            preparedStatement.setInt(2, getRoomId(name));
+            preparedStatement.executeUpdate();
+        } catch (SQLException ignored) {}
     }
 }

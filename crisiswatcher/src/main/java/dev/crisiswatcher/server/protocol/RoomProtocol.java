@@ -1,4 +1,4 @@
-package dev.crisiswatcher.protocol;
+package dev.crisiswatcher.server.protocol;
 import java.util.UUID;
 
 public class RoomProtocol {

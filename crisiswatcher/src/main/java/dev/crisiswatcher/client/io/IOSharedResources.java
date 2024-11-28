@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 import dev.crisiswatcher.client.dto.RoomDTO;
+
 import dev.crisiswatcher.client.dto.UserDTO;
 
 /**
@@ -30,6 +32,7 @@ import dev.crisiswatcher.client.dto.UserDTO;
  * @author CrisisWatcher
  */
 public class IOSharedResources {
+
     /**
      * The user data transfer object
      */
@@ -41,6 +44,7 @@ public class IOSharedResources {
     /**
      * The TCP output buffer
      */
+
     private List<String> tcpOutputBuffer;
     /**
      * The UDP output buffer
@@ -51,8 +55,10 @@ public class IOSharedResources {
      * Constructs a new IOSharedResources object.
      */
     public IOSharedResources() {
+
         userDTO = new UserDTO();
         roomDTO = new RoomDTO();
+
         tcpOutputBuffer = Collections.synchronizedList(new ArrayList<>());
         udpOutputBuffer = Collections.synchronizedList(new ArrayList<>());
     }
@@ -64,6 +70,7 @@ public class IOSharedResources {
      */
     public UserDTO getUserDTO() {
         return userDTO;
+
     }
 
     /**
