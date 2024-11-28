@@ -48,8 +48,10 @@ public class StandardInput extends Thread {
         List.of(CommandLevel.AUTH, "/info - Apresenta as informações relacionadas com o utilizador"),
         List.of(CommandLevel.AUTH, "/username <new_username> - Altera o nome de utilizador"),
         List.of(CommandLevel.AUTH, "/password <new_password> - Altera a palavra-passe do utilizador"),
-        List.of(CommandLevel.AUTH, "/logout - Desconecta o utilizador"),
+        List.of(CommandLevel.AUTH, "/chat <username> - Conecta-se a uma sala de chat com outro utilizador"),
+        List.of(CommandLevel.AUTH, "/msg <content> - Envia uma mensagem a outro utilizador"),
         List.of(CommandLevel.AUTH, "/createRoom <name> - Cria uma sala de chat"),
+        List.of(CommandLevel.AUTH, "/logout - Desconecta o utilizador"),
         List.of(CommandLevel.ALL, "/help - Apresenta uma lista dos comandos disponíveis ao cliente"),
         List.of(CommandLevel.ALL, "/close - Fecha a aplicação")
     );
@@ -57,6 +59,10 @@ public class StandardInput extends Thread {
      * The user data transfer object
      */
     private UserDTO userDTO;
+    /**
+     * The user data transfer object
+     */
+    private UserDTO receiverDTO;
     /**
      * The TCP output buffer
      */
@@ -77,6 +83,7 @@ public class StandardInput extends Thread {
      */
     public StandardInput(IOSharedResources ioSharedResources) {
         userDTO = ioSharedResources.getUserDTO();
+        receiverDTO = ioSharedResources.getReceiverDTO();
         tcpOutputBuffer = ioSharedResources.getTcpOutputBuffer();
         udpOutputBuffer = ioSharedResources.getUdpOutputBuffer();
         standardInput = new BufferedReader(new InputStreamReader(System.in));
@@ -87,9 +94,7 @@ public class StandardInput extends Thread {
      */
     @Override
     public void run() {
-
         System.out.println("Bem-vindo ao CrisisWatcher!\nCaso seja necessário, digite /help para obter a lista de comandos disponíveis");
-
         String input;
         try {
             while ((input = standardInput.readLine()) != null) {
@@ -100,6 +105,17 @@ public class StandardInput extends Thread {
                     } else if (input.equals("/help")) {
                         System.out.println(getAvailableCommands(new CommandLevel[]{CommandLevel.ALL, (userDTO.isLogged()) ? CommandLevel.AUTH : CommandLevel.NOAUTH}));
                         continue;
+                    } else if (input.contains("/msg")) {
+                        if (receiverDTO.getName() == null) {
+                            System.out.println("Não se encontra conectado a nenhum chat privado");
+                            continue;
+                        }
+                        String[] splittedInput = input.split(" ");
+                        input = "/msg " + userDTO.getName() + " " + receiverDTO.getName() + " ";
+                        for (int i = 3; i < splittedInput.length; i++) {
+                            input += splittedInput[i];
+                            if (i != splittedInput.length - 1) input += " ";
+                        }
                     }
                     tcpOutputBuffer.add(input);
                 } else {

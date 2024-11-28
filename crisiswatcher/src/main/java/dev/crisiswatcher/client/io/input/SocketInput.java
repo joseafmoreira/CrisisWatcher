@@ -57,6 +57,10 @@ public class SocketInput extends Thread {
      */
     private UserDTO userDTO;
     /**
+     * The receiver data transfer object
+     */
+    private UserDTO receiverDTO;
+    /**
      * The room data transfer object
      */
     private RoomDTO roomDTO;
@@ -98,6 +102,10 @@ public class SocketInput extends Thread {
                     } catch (UnknownHostException ignored) {}
                     roomDTO.setPort(Integer.valueOf(splittedOutput[3]));
                     output = DEFAULT_ROOM_CHANGE_MESSAGE;
+                } else if (output.startsWith("/receiver")) {
+                    String[] splittedOutput = output.split(" ");
+                    receiverDTO.setName((splittedOutput[1].equals("null")) ? null : splittedOutput[1]);
+                    output = "Conectado à sala de chat com " + receiverDTO.getName();
                 }
                 System.out.println(output.equals(DEFAULT_OUTPUT_MESSAGE) ? INVALID_COMMAND_MESSAGE : output);
             }

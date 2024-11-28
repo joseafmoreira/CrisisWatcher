@@ -286,7 +286,7 @@ public class DBManager {
             preparedStatement.setString(2, content);
 
             preparedStatement.executeUpdate();
-            Logger.addServerLogEntry("Uma mensagem foi inserido com sucesso");
+            Logger.addServerLogEntry("Uma mensagem foi inserida com sucesso");
 
             return true;
             
@@ -408,6 +408,38 @@ public class DBManager {
         }
     }
 
+    public synchronized String getPrivateChat(String sender, String receiver) {
+        String result = null;
+        ResultSet senderResultSet = getUser(sender);
+        ResultSet receiverResultSet = getUser(receiver);
+        try {
+            if (senderResultSet != null && senderResultSet.next() && receiverResultSet != null && receiverResultSet.next()) {
+                result = "/receiver " + receiverResultSet.getInt(1) + " ";
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM private_messages WHERE sender = ? OR receiver = ? AND sender = ? OR receiver = ?");
+                preparedStatement.setInt(1, receiverResultSet.getInt(1));
+                preparedStatement.setInt(2, receiverResultSet.getInt(1));
+                preparedStatement.setInt(3, senderResultSet.getInt(1));
+                preparedStatement.setInt(4, senderResultSet.getInt(1));
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet != null) {
+                    while (resultSet.next()) {
+                        result += ((resultSet.getInt(2) == receiverResultSet.getInt(1)) ? receiver : sender) + ": " + resultSet.getString(4) + "\n";
+                    }
+                    result = result.substring(0, result.length() - 1);
+                }
+            } else {
+                result = "O destinatário não existe";
+            }
+            Logger.addServerLogEntry("Uma mensagem foi inserido com sucesso");
+            
+            
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao obter o chat privado: " + e.getMessage());
+        }
+
+        return result;
+    }
+
     private void initializeDatabase() throws SQLException {
         Statement statement = connection.createStatement();
         if (!checkTable("users")) 
@@ -416,12 +448,12 @@ public class DBManager {
             createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, owner INTEGER, address TEXT, port INTEGER, code TEXT, FOREIGN KEY(owner) REFERENCES users(uuid)");
             boolean result = createDefaultRooms();
             if(!result){
-                Logger.addServerLogEntry("Erro ao criar default rooms");;
+                Logger.addServerLogEntry("Erro ao criar default rooms");
             }
         if(!checkTable("messages"))
             createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, chatRoomID INTEGER, Content TEXT, DateTime DATETIME, FOREIGN KEY(chatRoomID) REFERENCES rooms(uuid)");
         if(!checkTable("private_messages"))
-            createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, Content TEXT, DateTime DATETIME, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
+            createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, Content TEXT, DateTime DATETIME, int seen, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
         if(!checkTable("requests"))
             createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, approved TEXT");
         if(!checkTable("roomEntries"))

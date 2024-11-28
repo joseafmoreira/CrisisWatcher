@@ -21,6 +21,7 @@ import dev.crisiswatcher.client.dto.UserDTO;
  * The operations available for this {@code IOSharedResources} include:
  * <ul>
  *  <li>{@link #getUserDTO()}: Returns the user stored in this {@code IOSharedResources} instance</li>
+ *  <li>{@link #getReceiverDTO()}: Returns the receiver stored in this {@code IOSharedResources} instance</li>
  *  <li>{@link #getRoomDTO()}: Returns the room stored in this {@code IOSharedResources} instance</li>
  *  <li>{@link #getTcpOutputBuffer()}: Returns the TCP output buffer stored in this {@code IOSharedResources} instance</li>
  *  <li>{@link #getUdpOutputBuffer()}: Returns the UDP output buffer stored in this {@code IOSharedResources} instance</li>
@@ -32,11 +33,14 @@ import dev.crisiswatcher.client.dto.UserDTO;
  * @author CrisisWatcher
  */
 public class IOSharedResources {
-
     /**
      * The user data transfer object
      */
     private UserDTO userDTO;
+    /**
+     * The receiver data transfer object
+     */
+    private UserDTO receiverDTO;
     /**
      * The room data transfer object
      */
@@ -44,7 +48,6 @@ public class IOSharedResources {
     /**
      * The TCP output buffer
      */
-
     private List<String> tcpOutputBuffer;
     /**
      * The UDP output buffer
@@ -55,10 +58,9 @@ public class IOSharedResources {
      * Constructs a new IOSharedResources object.
      */
     public IOSharedResources() {
-
         userDTO = new UserDTO();
+        receiverDTO = new UserDTO();
         roomDTO = new RoomDTO();
-
         tcpOutputBuffer = Collections.synchronizedList(new ArrayList<>());
         udpOutputBuffer = Collections.synchronizedList(new ArrayList<>());
     }
@@ -71,6 +73,15 @@ public class IOSharedResources {
     public UserDTO getUserDTO() {
         return userDTO;
 
+    }
+
+    /**
+     * Returns the receiver stored in this {@code IOSharedResources} instance.
+     * 
+     * @return the receiver stored in this {@code IOSharedResources} instance
+     */
+    public UserDTO getReceiverDTO() {
+        return receiverDTO;
     }
 
     /**

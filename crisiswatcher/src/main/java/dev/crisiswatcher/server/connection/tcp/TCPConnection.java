@@ -14,6 +14,7 @@ import dev.crisiswatcher.server.model.RoomModel;
 import dev.crisiswatcher.server.model.UserModel;
 import dev.crisiswatcher.server.model.UserModel.UserProfile;
 import dev.crisiswatcher.server.protocol.AuthenticationProtocol;
+import dev.crisiswatcher.server.protocol.UserChatProtocol;
 import dev.crisiswatcher.server.protocol.RequestProtocol;
 import dev.crisiswatcher.server.protocol.RoomProtocol;
 import dev.crisiswatcher.server.protocol.UserSettingsProtocol;
@@ -101,6 +102,8 @@ public class TCPConnection extends Thread {
                             } else {
                                 socketOutputMessage = output;
                             }
+                        } else if ((output = UserChatProtocol.processInput(finalInput)) != null) {
+                            socketOutputMessage = output;
                         } else if (input.equals("/logout")) {
                             userModel.setUuid(0);    
                             userModel.setName(null);
