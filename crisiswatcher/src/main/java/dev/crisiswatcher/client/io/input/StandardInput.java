@@ -48,6 +48,8 @@ public class StandardInput extends Thread {
         List.of(CommandLevel.AUTH, "/info - Apresenta as informações relacionadas com o utilizador"),
         List.of(CommandLevel.AUTH, "/username <new_username> - Altera o nome de utilizador"),
         List.of(CommandLevel.AUTH, "/password <new_password> - Altera a palavra-passe do utilizador"),
+        List.of(CommandLevel.AUTH, "/chat <username> - Recebe todas as mensagens de um chat com outro utilziador"),
+        List.of(CommandLevel.AUTH, "/unseen - Recebe todas as mensagens enviadas por outros utilizadores que não foram vistas"),
         List.of(CommandLevel.AUTH, "/msg <username> <message> - Envia uma mensagem privada para outro utilizador"),
         List.of(CommandLevel.AUTH, "/logout - Desconecta o utilizador"),
         List.of(CommandLevel.ALL, "/help - Apresenta uma lista dos comandos disponíveis ao cliente"),

@@ -216,43 +216,62 @@ public class Manager {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO private_messages (sender, receiver, content, seen) VALUES (?, ?, ?, ?)");
             ResultSet receiverResultSet = getUser(receiver);
             if (receiverResultSet != null && receiverResultSet.next()) {
+                System.out.println(receiverResultSet.getInt(1));
                 statement.setInt(1, senderID);
                 statement.setInt(2, receiverResultSet.getInt(1));
                 statement.setString(3, content);
                 statement.setInt(4, 0);
                 statement.executeUpdate();
                 Logger.addServerLogEntry("A mensagem de " + senderName + " para " + receiver + " foi registada com sucesso");
+                return true;
             }
-            return true;
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao enviar uma mensagem para o utilizador " + receiver + ": " + e.getMessage());
         }
         return false;
     }
 
-    public synchronized String getMessages(String senderName, int senderID, String receiver, boolean all) {
+    public synchronized String getPrivateMessages(String senderName, int senderID, String receiver, boolean all) {
         String result = "Erro ao obter as mensagens do utilizador " + senderName;
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM private_messages WHERE sender = ?" + ((all) ? " AND seen = 0" : "") + ((!receiver.equals("all")) ? " AND receiver = ?" : ""));
-            statement.setInt(1, senderID);
-            if (!receiver.equals("all")) {
-                ResultSet userResultSet = getUser(receiver);
-                if (userResultSet != null && userResultSet.next()) 
-                    statement.setInt(2, userResultSet.getInt(1));
-                else 
-                    throw new SQLException("User " + receiver + " doesn't exist");
+            String query = (!senderName.equals(receiver)) ? "SELECT * FROM private_messages WHERE (sender = " + senderID + " OR receiver = " + senderID + ")" : "SELECT * FROM private_messages WHERE (sender = " + senderID + " AND receiver = " + senderID + ")";
+            if (!all) {
+                query = "SELECT * FROM private_messages WHERE receiver =" + senderID + " AND seen = 0";
+                if (!receiver.equals("all")) {
+                    ResultSet userResultSet = getUser(receiver);
+                    if (userResultSet != null && userResultSet.next()) 
+                        query = (!senderName.equals(receiver)) ? "SELECT * FROM private_messages WHERE ((sender = " + senderID + " AND receiver = " + userResultSet.getInt(1) + ") OR (sender = " + userResultSet.getInt(1) + " AND receiver = " + senderID + "))" + ((!all) ? " AND seen = 0" : "") : "SELECT * FROM private_messages WHERE (sender = " + senderID + " AND receiver = " + senderID + ")";
+                    else 
+                        throw new SQLException("User " + receiver + " doesn't exist");
+                }
             }
+            System.out.println(query);
+            PreparedStatement statement = connection.prepareStatement(query);
             ResultSet resultSet = statement.executeQuery();
             result = "/msgs ";
             while (resultSet.next()) 
-                result += resultSet.getInt(1) + "/" + getUser(resultSet.getInt(2)).getString(2) + "/" + getUser(resultSet.getInt(3)).getString(2) + "/" + resultSet.getString(4).replaceAll(" ", "_") + " ";
+                result += resultSet.getInt(1) + "/" + getUser(resultSet.getInt(2)).getString(2) + "/" + getUser(resultSet.getInt(3)).getString(2) + "/" + resultSet.getString(4).replaceAll(" ", "_") + "/" + resultSet.getInt(5) + " ";
             Logger.addServerLogEntry("As mensagens do utilizador " + senderName + " foram obtidas com sucesso");
             result = result.substring(0, result.length() - 1);
         } catch (SQLException e) {
-            if (e.getMessage().equals("User " + receiver + " doesn't exist")) result = "Não existem mensagens trocadas com o utilizador " + receiver;
+            if (e.getMessage().equals("User " + receiver + " doesn't exist")) result = "O utilizador " + receiver + " não foi encontrado";
             Logger.addServerLogEntry("Erro ao obter as mensagens do utilizador " + senderName + ": " + e.getMessage());
         }
         return result;
+    }
+
+    public synchronized boolean setPrivateMessagesSeen(int messageID, int receiverID) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE private_messages SET seen = 1 WHERE uuid = ? AND receiver = ?");
+            statement.setInt(1, messageID);
+            statement.setInt(2, receiverID);
+            statement.executeUpdate();
+            Logger.addServerLogEntry("A mensagem " + messageID + " foi vista");
+            return true;
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao visualizar a mensagem " + messageID);
+        }
+        return false;
     }
 
     /**

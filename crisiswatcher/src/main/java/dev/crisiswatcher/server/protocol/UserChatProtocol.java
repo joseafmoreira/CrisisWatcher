@@ -11,27 +11,42 @@ public abstract class UserChatProtocol {
             if (splittedInput.length > 2) {
                 String content = "";
                 for (int i = 2; i < splittedInput.length; i++) 
-                content += splittedInput[i] + " ";
-                output = sendMessage(userModel.getName(), userModel.getUuid(), splittedInput[1], content);
+                    content += splittedInput[i] + " ";
+                output = sendPrivateMessage(userModel.getName(), userModel.getUuid(), splittedInput[1], content);
             }
         } else if (input.contains("/chat")) {
             String[] splittedInput = input.split(" ");
             if (splittedInput.length == 2)
-                output = getMessages(userModel.getName(), userModel.getUuid(), splittedInput[1], true);
-        } else if (input.equals("/johncena")) {
-            output = getMessages(userModel.getName(), userModel.getUuid(), "all", false);
+                output = getPrivateMessages(userModel.getName(), userModel.getUuid(), splittedInput[1], true);
+        } else if (input.equals("/unseen")) {
+            output = getPrivateMessages(userModel.getName(), userModel.getUuid(), "all", false);
+        } else if (input.startsWith("/seen")) {
+            setPrivateMessagesSeen(Integer.valueOf(input.split(" ")[1]), userModel.getUuid());
+            output = "/seen";
         }
         return output;
     }
 
-    private static String sendMessage(String senderName, int senderID, String receiver, String content) {
+    private static String sendPrivateMessage(String senderName, int senderID, String receiver, String content) {
         String output = "Erro ao enviar mensagem para o cliente " + receiver;
         boolean result = (Manager.getInstance()).sendPrivateMessage(senderName, senderID, receiver, content.substring(0, content.length() - 1));
-        if (result) output = "A mensagem foi enviada com sucesso para o utilizador " + senderName;
+        if (result) output = "A mensagem foi enviada com sucesso para o utilizador " + receiver;
         return output;
     }
 
-    private static String getMessages(String senderName, int senderID, String receiver, boolean all) {
-        return (Manager.getInstance()).getMessages(senderName, senderID, receiver, all);
+    private static String getPrivateMessages(String senderName, int senderID, String receiver, boolean all) {
+        return (Manager.getInstance()).getPrivateMessages(senderName, senderID, receiver, all);
+    }
+
+    private static void setPrivateMessagesSeen(int messageID, int userID) {
+        new Thread(() -> {
+            while (true) {
+                boolean result = (Manager.getInstance()).setPrivateMessagesSeen(messageID, userID);
+                if (result) break;
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignored) {}
+            }
+        }).start();
     }
 }

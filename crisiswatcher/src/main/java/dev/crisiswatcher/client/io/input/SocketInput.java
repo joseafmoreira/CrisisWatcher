@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import dev.crisiswatcher.client.dto.RoomDTO;
 import dev.crisiswatcher.client.dto.UserDTO;
@@ -59,6 +60,7 @@ public class SocketInput extends Thread {
      * The room data transfer object
      */
     private RoomDTO roomDTO;
+    private List<String> tcpOutputBuffer;
 
     /**
      * Constructs a new SocketInput object with a specified socketInputStreamReader and ioSharedResources.
@@ -70,6 +72,7 @@ public class SocketInput extends Thread {
         socketInput = new BufferedReader(socketInputStreamReader);
         userDTO = ioSharedResources.getUserDTO();
         roomDTO = ioSharedResources.getRoomDTO();
+        tcpOutputBuffer = ioSharedResources.getTcpOutputBuffer();
     }
 
     /**
@@ -102,10 +105,15 @@ public class SocketInput extends Thread {
                     for (int i = 1; i < splittedOutput.length; i++) {
                         String[] splittedMessage = splittedOutput[i].split("/");
                         outputMessage += "[" + splittedMessage[1].trim() + " -> " + splittedMessage[2].trim() + "]: " + splittedMessage[3].trim().replaceAll("_", " ").trim() + "\n";
+                        if (Integer.valueOf(splittedMessage[4]).equals(0)) {
+                            tcpOutputBuffer.add("/seen " + splittedMessage[0]);
+                        }
                     }
-                    output = outputMessage.substring(0, outputMessage.length() - 1);
+                    output = (outputMessage.equals("")) ? "" : outputMessage.substring(0, outputMessage.length() - 1);
+                } else if (output.equals("/seen")) {
+                    continue;
                 }
-                System.out.println(output.equals(DEFAULT_OUTPUT_MESSAGE) ? INVALID_COMMAND_MESSAGE : output);
+                if (!output.equals("")) System.out.println(output.equals(DEFAULT_OUTPUT_MESSAGE) ? INVALID_COMMAND_MESSAGE : output);
             }
         } catch (IOException ignored) {}
         interrupt();
