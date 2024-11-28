@@ -12,11 +12,11 @@ import java.util.List;
 
 import dev.crisiswatcher.server.file.FileHandler;
 import dev.crisiswatcher.server.logger.Logger;
+import dev.crisiswatcher.server.model.MessageModel;
+import dev.crisiswatcher.server.model.RequestModel;
+import dev.crisiswatcher.server.model.RequestModel.RequestLevel;
+import dev.crisiswatcher.server.model.RoomModel;
 import dev.crisiswatcher.server.protocol.RoomProtocol;
-import dev.crisiswatcher.server.schema.Message;
-import dev.crisiswatcher.server.schema.Request;
-import dev.crisiswatcher.server.schema.Request.RequestLevel;
-import dev.crisiswatcher.server.schema.Room;
 
 public class DBManager {
     private static final String SQLITE = "jdbc:sqlite:";
@@ -186,7 +186,7 @@ public class DBManager {
         }
     }
 
-    public synchronized Room getRoomByCode(String code){
+    public synchronized RoomModel getRoomByCode(String code){
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM rooms WHERE code = ?");
            
@@ -197,7 +197,7 @@ public class DBManager {
 
             if (resultSet.next()) {
                 Logger.addServerLogEntry("Room retornado com sucesso");
-                Room room = new Room(resultSet.getString(2), resultSet.getInt(3), resultSet.getString(4), resultSet.getInt(5), resultSet.getString(6));
+                RoomModel room = new RoomModel(resultSet.getString(2), resultSet.getInt(3), resultSet.getString(4), resultSet.getInt(5), resultSet.getString(6));
                 room.setUuid(resultSet.getInt(1));
                 return room;
             }
@@ -230,7 +230,7 @@ public class DBManager {
         }
     }
 
-    public synchronized boolean insertMessage(Message message){
+    public synchronized boolean insertMessage(MessageModel message){
         int chatRoomId = message.getChatRoomId();
         String content = message.getContent();
         
@@ -252,8 +252,8 @@ public class DBManager {
         }
     }
 
-    public synchronized List<Message> getMessagesByRoomId(int roomId){
-        List<Message> messages = new ArrayList<>();
+    public synchronized List<MessageModel> getMessagesByRoomId(int roomId){
+        List<MessageModel> messages = new ArrayList<>();
 
         try {
             
@@ -264,7 +264,7 @@ public class DBManager {
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Message message = new Message();
+                MessageModel message = new MessageModel();
 
                 message.setUuid(resultSet.getInt(1));
                 message.setChatRoomId(resultSet.getInt(2));
@@ -281,10 +281,10 @@ public class DBManager {
         }
     }
 
-    public synchronized boolean insertRoom(Room room){
+    public synchronized boolean insertRoom(RoomModel room){
         String name = room.getName();
         int owner = room.getOwner();
-        String address = room.getAddress();
+        String address = room.getIp();
         int port = room.getPort();
         String code = room.getCode();
 
@@ -310,8 +310,8 @@ public class DBManager {
 
     }
 
-    public synchronized boolean insertRequest(Request request){
-        int level = request.getRequest().getKey();
+    public synchronized boolean insertRequest(RequestModel request){
+        int level = request.getRequestLevel().getKey();
         boolean approved = request.isApproved();
 
         
@@ -334,8 +334,8 @@ public class DBManager {
 
     }
 
-    public synchronized List<Request> getRequestsbyLevel(int level){
-        List<Request> requests = new ArrayList<>();
+    public synchronized List<RequestModel> getRequestsbyLevel(int level){
+        List<RequestModel> requests = new ArrayList<>();
 
         try {
             
@@ -346,10 +346,10 @@ public class DBManager {
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Request request = new Request();
+                RequestModel request = new RequestModel();
 
                 request.setUuid(resultSet.getInt(1));
-                request.setRequest(RequestLevel.getEnum(Integer.toString(resultSet.getInt(2))));
+                request.setRequestLevel(RequestLevel.getEnum(Integer.toString(resultSet.getInt(2))));
                 request.setApproved(resultSet.getBoolean(3));
 
                 requests.add(request);
@@ -382,10 +382,10 @@ public class DBManager {
     }
 
     private boolean createDefaultRooms() throws SQLException{
-        Room High = new Room("High", 0, RoomProtocol.getIp(),6789, "HIGHROOM");
-        Room Medium = new Room("Medium", 0,RoomProtocol.getIp(),6789,"MEDIUMROOM" );
-        Room Low = new Room("Low", 0, RoomProtocol.getIp(),6789,"LOWROOM");
-        Room General = new Room("General", 0 , RoomProtocol.getIp(),6789, "GENERALROOM");
+        RoomModel High = new RoomModel("High", 0, RoomProtocol.getIp(),6789, "HIGHROOM");
+        RoomModel Medium = new RoomModel("Medium", 0,RoomProtocol.getIp(),6789,"MEDIUMROOM" );
+        RoomModel Low = new RoomModel("Low", 0, RoomProtocol.getIp(),6789,"LOWROOM");
+        RoomModel General = new RoomModel("General", 0 , RoomProtocol.getIp(),6789, "GENERALROOM");
 
         try {
             insertRoom(High);

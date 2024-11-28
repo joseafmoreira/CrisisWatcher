@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import dev.crisiswatcher.server.schema.User;
+import dev.crisiswatcher.server.model.UserModel;
 
 /**
  * Handles the TCP client connection to the server in a separate thread.
@@ -48,7 +48,7 @@ public class TCPConnection extends Thread {
     /**
      * The user associated with connection
      */
-    private User user;
+    private UserModel user;
 
     /**
      * Constructs a new TCPConnection thread with a specified clientSocket.
@@ -73,7 +73,7 @@ public class TCPConnection extends Thread {
      * Returns user
      * @return
      */
-    public User getUser(){
+    public UserModel getUser(){
         return user;
     }
 }

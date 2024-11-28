@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import dev.crisiswatcher.server.connection.Connection;
+import dev.crisiswatcher.server.connection.tcp.TCPConnection;
 import dev.crisiswatcher.server.logger.Logger;
 
 
@@ -57,7 +57,7 @@ public class Server {
     /**
      * The server's connection list
      */
-    private List<Connection> connections;
+    private List<TCPConnection> connections;
 
     /**
      * Constructs a new Server object.
@@ -80,7 +80,7 @@ public class Server {
     public void start() {
         while (true) {
             try {
-                connections.add(new Connection(serverSocket.accept()));
+                connections.add(new TCPConnection(serverSocket.accept()));
             } catch (SocketTimeoutException ignored) {}
             catch (IOException e) {
                 Logger.addServerLogEntry("Erro no servidor: " + e.getMessage());
@@ -96,9 +96,9 @@ public class Server {
      * Checks the connections added to this server's list.
      */
     private void checkConnections() {
-        Iterator<Connection> it = connections.iterator();
+        Iterator<TCPConnection> it = connections.iterator();
         while (it.hasNext()) {
-            Connection connection = it.next();
+            TCPConnection connection = it.next();
             if (connection.isInterrupted()) {
                 it.remove();
                 continue;

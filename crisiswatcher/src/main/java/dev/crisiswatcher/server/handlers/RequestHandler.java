@@ -6,17 +6,17 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 import dev.crisiswatcher.server.logger.Logger;
-import dev.crisiswatcher.server.schema.Request;
-import dev.crisiswatcher.server.schema.Request.RequestLevel;
 import dev.crisiswatcher.server.manager.DBManager;
-import dev.crisiswatcher.server.schema.Room;
+import dev.crisiswatcher.server.model.RequestModel;
+import dev.crisiswatcher.server.model.RequestModel.RequestLevel;
+import dev.crisiswatcher.server.model.RoomModel;
 
 public class RequestHandler extends Thread {
-    private Request request;
-    private Room High;
-    private Room Medium;
-    private Room Low;
-    private Room General;
+    private RequestModel request;
+    private RoomModel High;
+    private RoomModel Medium;
+    private RoomModel Low;
+    private RoomModel General;
     private DBManager dbManager;
     private MulticastSocket HighSocket;
     private MulticastSocket MediumSocket;
@@ -28,7 +28,7 @@ public class RequestHandler extends Thread {
     private InetAddress lowGroup;
 
     @SuppressWarnings("deprecation")
-    public RequestHandler(Request request) throws IOException{
+    public RequestHandler(RequestModel request) throws IOException{
         this.request = request;
 
         this.dbManager = DBManager.getInstance();
@@ -39,13 +39,13 @@ public class RequestHandler extends Thread {
         this.High = dbManager.getRoomByCode("HIGHROOM");
 
         this.GeneralSocket = new MulticastSocket(General.getPort());
-        this.generalGroup = InetAddress.getByName(General.getAddress());
+        this.generalGroup = InetAddress.getByName(General.getIp());
         this.HighSocket = new MulticastSocket(High.getPort());
-        this.highGroup = InetAddress.getByName(High.getAddress());
+        this.highGroup = InetAddress.getByName(High.getIp());
         this.MediumSocket = new MulticastSocket(Medium.getPort());
-        this.mediumGroup = InetAddress.getByName(Medium.getAddress());
+        this.mediumGroup = InetAddress.getByName(Medium.getIp());
         this.LowSocket = new MulticastSocket(Low.getPort());
-        this.lowGroup = InetAddress.getByName(Low.getAddress());
+        this.lowGroup = InetAddress.getByName(Low.getIp());
         HighSocket.joinGroup(highGroup);
         MediumSocket.joinGroup(mediumGroup);
         LowSocket.joinGroup(lowGroup);
@@ -54,7 +54,7 @@ public class RequestHandler extends Thread {
 
     @Override
     public void run(){
-        if(request.getRequest() == RequestLevel.COMM){
+        if(request.getRequestLevel() == RequestLevel.COMM){
             String commString = request.getUuid() + "- REQUEST DE COMUNICACOES (/approve <request_ID>)";
             try {
                 sendMessage(commString, HighSocket,High.getPort() , highGroup );
@@ -64,7 +64,7 @@ public class RequestHandler extends Thread {
                 Logger.addServerLogEntry("Error Request: "+e.getMessage());
             }
 
-        }else if(request.getRequest() == RequestLevel.EVAC){
+        }else if(request.getRequestLevel() == RequestLevel.EVAC){
             String evacString = request.getUuid() + "- REQUEST DE EVACUAÇÃO (/approve <request_ID>)";
             try {
                 sendMessage(evacString, HighSocket,High.getPort() , highGroup );
@@ -73,7 +73,7 @@ public class RequestHandler extends Thread {
                 Logger.addServerLogEntry("Error Request: "+e.getMessage());
             }
             
-        }else if(request.getRequest() == RequestLevel.RES){
+        }else if(request.getRequestLevel() == RequestLevel.RES){
             String resString = request.getUuid() + "- REQUEST DE RECURSOS (/approve <request_ID>)";
             try {
                 sendMessage(resString, HighSocket,High.getPort() , highGroup );
@@ -88,7 +88,7 @@ public class RequestHandler extends Thread {
         while (request.isApproved() == null) {}
         if(request.isApproved()){
             try {
-                sendMessage(request.getRequest().toString(), GeneralSocket, General.getPort(), generalGroup);
+                sendMessage(request.getRequestLevel().toString(), GeneralSocket, General.getPort(), generalGroup);
             } catch (Exception e) {
                 Logger.addServerLogEntry("Erro a enviar REQUEST NOTIFICATION: "+e.getMessage());
             }

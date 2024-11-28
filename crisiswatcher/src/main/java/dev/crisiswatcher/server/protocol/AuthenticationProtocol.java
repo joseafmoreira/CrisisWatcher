@@ -1,8 +1,8 @@
 package dev.crisiswatcher.server.protocol;
 
-import dev.crisiswatcher.server.password.PasswordHandler;
-import dev.crisiswatcher.server.schema.User.UserProfile;
 import dev.crisiswatcher.server.manager.DBManager;
+import dev.crisiswatcher.server.model.UserModel.UserProfile;
+import dev.crisiswatcher.server.password.PasswordHandler;
 
 public abstract class AuthenticationProtocol {
     public static String processInput(String input) {

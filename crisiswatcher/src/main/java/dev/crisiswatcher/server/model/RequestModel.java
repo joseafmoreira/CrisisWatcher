@@ -21,7 +21,7 @@ package dev.crisiswatcher.server.model;
 public class RequestModel {
     private int uuid;
     private RequestLevel requestLevel;
-    private boolean approved;
+    private Boolean approved;
 
     public int getUuid() {
         return uuid;
@@ -39,11 +39,11 @@ public class RequestModel {
         this.requestLevel = request;
     }
 
-    public boolean isApproved() {
+    public Boolean isApproved() {
         return approved;
     }
 
-    public synchronized void setApproved(boolean approved) {
+    public synchronized void setApproved(Boolean approved) {
         this.approved = approved;
     }
 

@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import dev.crisiswatcher.server.handlers.RequestHandler;
 import dev.crisiswatcher.server.manager.DBManager;
-import dev.crisiswatcher.server.schema.Request;
-import dev.crisiswatcher.server.schema.Request.RequestLevel;
+import dev.crisiswatcher.server.model.RequestModel;
+import dev.crisiswatcher.server.model.RequestModel.RequestLevel;
 
 public class RequestProtocol {
     public static String processInput(String input) {
@@ -19,12 +19,12 @@ public class RequestProtocol {
     public synchronized static void sendRequest(String input){
         String[] splitedInput = input.split(" ");
         if(splitedInput.length == 2){
-            Request request = new Request();
+            RequestModel request = new RequestModel();
             RequestLevel requestLevel = RequestLevel.getEnum(splitedInput[1]);
             if (requestLevel.getValue().equals("EVAC") ||
                 requestLevel.getValue().equals("COMM") ||
                 requestLevel.getValue().equals("RES")) {
-                    request.setRequest(requestLevel);
+                    request.setRequestLevel(requestLevel);
                     request.setApproved(null);
                     boolean inserted = DBManager.getInstance().insertRequest(request);
                     if (inserted) {

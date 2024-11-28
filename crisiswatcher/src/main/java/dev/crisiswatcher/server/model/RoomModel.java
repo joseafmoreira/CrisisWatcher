@@ -42,7 +42,7 @@ public class RoomModel {
     /**
      * The ip of this room
      */
-    private InetAddress ip;
+    private String ip;
     /**
      * The port of this room
      */
@@ -51,6 +51,14 @@ public class RoomModel {
      * The code of this room
      */
     private String code;
+
+    public RoomModel(String name, int owner, String ip, int port, String code) {
+        this.name = name;
+        this.owner = owner;
+        this.ip = ip;
+        this.port = port;
+        this.code = code;
+    }
 
     /**
      * Returns this room's uuid.
@@ -111,7 +119,7 @@ public class RoomModel {
      * 
      * @return this room's ip
      */
-    public InetAddress getIp() {
+    public String getIp() {
         return ip;
     }
 
@@ -120,7 +128,7 @@ public class RoomModel {
      * 
      * @param ip the ip to be set for this room
      */
-    public void setIp(InetAddress ip) {
+    public void setIp(String ip) {
         this.ip = ip;
     }
 

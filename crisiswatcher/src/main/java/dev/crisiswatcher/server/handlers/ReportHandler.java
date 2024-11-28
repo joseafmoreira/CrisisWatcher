@@ -7,22 +7,22 @@ import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import dev.crisiswatcher.server.connection.Connection;
+import dev.crisiswatcher.server.connection.tcp.TCPConnection;
 import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.manager.DBManager;
-import dev.crisiswatcher.server.schema.Room;
+import dev.crisiswatcher.server.model.RoomModel;
 
 public class ReportHandler extends Thread {
     
     /**
      * Server's connection list
      */
-    private List<Connection> connections;
+    private List<TCPConnection> connections;
 
     /**
      * General Room to send the report
      */
-    private Room GeneralRoom;
+    private RoomModel GeneralRoom;
 
     /**
      * Socket to connect to general Room
@@ -34,11 +34,11 @@ public class ReportHandler extends Thread {
      * @param connections
      * @throws IOException
      */
-    public ReportHandler(List<Connection> connections) throws IOException{
+    public ReportHandler(List<TCPConnection> connections) throws IOException{
         this.connections = connections;
         this.GeneralRoom = DBManager.getInstance().getRoomByCode("GENERALROOM");
         this.multicastSocket = new MulticastSocket(GeneralRoom.getPort());
-        InetAddress group = InetAddress.getByName(GeneralRoom.getAddress());
+        InetAddress group = InetAddress.getByName(GeneralRoom.getIp());
         multicastSocket.joinGroup(group);
 
         Logger.addServerLogEntry("Report Handler criado!");
@@ -64,8 +64,8 @@ public class ReportHandler extends Thread {
      */
     private void reportConnections(){
         String message = "Num of Connections: " + connections.size() + "\n";
-        for (Connection conn : connections) {
-            message += conn.getTcpConnection().getUser().getUsername() + "\n";
+        for (TCPConnection conn : connections) {
+            message += conn.getUser().getName() + "\n";
         }
         byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
