@@ -96,6 +96,7 @@ public class RequestHandler extends Thread {
         }else {
             Logger.addServerLogEntry("Request Negado");
         }
+        
     
     }
 

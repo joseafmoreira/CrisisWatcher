@@ -357,7 +357,7 @@ public class DBManager {
 
     public synchronized boolean insertRequest(RequestModel request){
         int level = request.getRequestLevel().getKey();
-        boolean approved = request.isApproved();
+        Boolean approved = request.isApproved();
 
         
         try {
@@ -365,7 +365,7 @@ public class DBManager {
            
             
             preparedStatement.setInt(1, level);
-            preparedStatement.setBoolean(2, approved);
+            preparedStatement.setString(2, approved.toString());
             
 
             preparedStatement.executeUpdate();
@@ -395,7 +395,7 @@ public class DBManager {
 
                 request.setUuid(resultSet.getInt(1));
                 request.setRequestLevel(RequestLevel.getEnum(Integer.toString(resultSet.getInt(2))));
-                request.setApproved(resultSet.getBoolean(3));
+                request.setApproved(Boolean.valueOf(resultSet.getString(3)));
 
                 requests.add(request);
             }

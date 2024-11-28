@@ -89,7 +89,7 @@ public abstract class FileHandler {
      * @return the lines of a file
      */
 
-    private static List<String> readFile(String path) {
+    public static List<String> readFile(String path) {
         try {
             return Files.readAllLines(Paths.get(path));
         } catch (IOException ignored) {}

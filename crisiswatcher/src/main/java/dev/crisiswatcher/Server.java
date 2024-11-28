@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import dev.crisiswatcher.server.connection.tcp.TCPConnection;
+import dev.crisiswatcher.server.handlers.ReportHandler;
 import dev.crisiswatcher.server.logger.Logger;
 
 
@@ -78,6 +79,12 @@ public class Server {
      * Initializes the server process.
      */
     public void start() {
+        try {
+            new ReportHandler(connections).start();
+            Logger.addServerLogEntry("Reporter iniciado!");
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Reporter nao iniciado! : "+ e.getMessage());
+        }
         while (true) {
             try {
                 connections.add(new TCPConnection(serverSocket.accept()));

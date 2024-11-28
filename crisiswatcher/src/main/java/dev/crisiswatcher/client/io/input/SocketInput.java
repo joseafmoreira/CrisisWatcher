@@ -78,6 +78,7 @@ public class SocketInput extends Thread {
      */
     @Override
     public void run() {
+
         String output;
         try {
             while ((output = socketInput.readLine()) != null) {

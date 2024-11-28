@@ -6,10 +6,16 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import dev.crisiswatcher.server.connection.udp.UDPConnection;
+import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.manager.DBManager;
+import dev.crisiswatcher.server.model.RequestModel;
+import dev.crisiswatcher.server.model.RoomModel;
 import dev.crisiswatcher.server.model.UserModel;
 import dev.crisiswatcher.server.model.UserModel.UserProfile;
 import dev.crisiswatcher.server.protocol.AuthenticationProtocol;
+import dev.crisiswatcher.server.protocol.RequestProtocol;
+import dev.crisiswatcher.server.protocol.RoomProtocol;
 import dev.crisiswatcher.server.protocol.UserSettingsProtocol;
 
 /**
@@ -100,6 +106,49 @@ public class TCPConnection extends Thread {
                             userModel.setName(null);
                             userModel.setProfile(null);
                             socketOutputMessage = sendUser("Utilizador desconectado com sucesso");
+                        } else if(input.startsWith("/createRoom")){
+                            String[] splittedInput = input.split(" ");
+                            String roomName = splittedInput[1];
+                            String code = RoomProtocol.generateCode();
+                            String ip = RoomProtocol.getIp();
+                            int port = 6789;
+                            int owner = userModel.getUuid();
+                            RoomModel room = new RoomModel(roomName, owner, ip, port, code);
+                            DBManager.getInstance().insertRoom(room);
+                            
+                            new UDPConnection(room).start();
+                            
+                        } else if(input.startsWith("/joinRoom")){
+                            String[] splittedInput = input.split(" ");
+                            String code = splittedInput[1];
+                            RoomModel room = DBManager.getInstance().getRoomByCode(code);
+                            if(room != null){
+                                socketOutputMessage = "/room "+ room.getName() + " " + room.getIp() + " "+ room.getPort();
+                            }else{
+                                socketOutputMessage = "Room nao encontrada!";
+                            }
+                        } else if(input.startsWith("/request")){
+                            RequestProtocol.processInput(input);
+                        } else if(input.startsWith("/approve")){
+                            String[] splittedInput = input.split(" ");
+                            int requestId = Integer.parseInt(splittedInput[1]);
+                            for (RequestModel request : RequestProtocol.requests) {
+                                if(request.getUuid() == requestId){
+                                    request.setApproved(true);
+                                    Logger.addServerLogEntry("Request Aceite!");
+                                }
+                            }
+                            socketOutputMessage = "Request com o id: " + requestId + " nao existe";
+                        }else if(input.startsWith("/deny")){
+                            String[] splittedInput = input.split(" ");
+                            int requestId = Integer.parseInt(splittedInput[1]);
+                            for (RequestModel request : RequestProtocol.requests) {
+                                if(request.getUuid() == requestId){
+                                    request.setApproved(false);
+                                    Logger.addServerLogEntry("Request Negado!");
+                                }
+                            }
+                            socketOutputMessage = "Request com o id: " + requestId + " nao existe";
                         }
                     }
                 }

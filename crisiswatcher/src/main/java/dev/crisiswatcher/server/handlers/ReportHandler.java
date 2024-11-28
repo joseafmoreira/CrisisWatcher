@@ -5,9 +5,11 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import dev.crisiswatcher.server.connection.tcp.TCPConnection;
+import dev.crisiswatcher.server.file.FileHandler;
 import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.manager.DBManager;
 import dev.crisiswatcher.server.model.RoomModel;
@@ -53,6 +55,7 @@ public class ReportHandler extends Thread {
             try {
                 Thread.sleep(60000);
                 reportConnections();
+                reportActions();
             } catch (Exception e) {
                 Logger.addServerLogEntry("Erro no relatorio de conexoes");
             }
@@ -60,7 +63,7 @@ public class ReportHandler extends Thread {
     }
 
     /**
-     * Auxiliar method to report the connections by multicast socket
+     * Auxiliary method to report the connections by multicast socket
      */
     private void reportConnections(){
         String message = "Num of Connections: " + connections.size() + "\n";
@@ -73,6 +76,30 @@ public class ReportHandler extends Thread {
             multicastSocket.send(packet);
         } catch (Exception e) {
             Logger.addServerLogEntry("Erro ao enviar relatorio de utilizadores conectados");
+        }
+
+    }
+
+    private void reportActions(){
+        String message = "Ultimas 10 acoes realizadas: \n";
+        
+        List<String> logLines = new ArrayList<>(FileHandler.readFile("logs/server.log"));
+
+        
+        for (int i = 0 ; i < 10 ; i++) {
+            try {
+                message += logLines.get(i) + "\n";
+            } catch (IndexOutOfBoundsException e) {
+                break;
+            }
+        }
+
+        byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        try {
+            multicastSocket.send(packet);
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao enviar relatorio de acoes");
         }
 
     }
