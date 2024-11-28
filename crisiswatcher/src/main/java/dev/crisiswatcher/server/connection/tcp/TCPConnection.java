@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import dev.crisiswatcher.server.schema.User;
+
 /**
  * Handles the TCP client connection to the server in a separate thread.
  * 
@@ -44,6 +46,11 @@ public class TCPConnection extends Thread {
     private PrintWriter socketOutput;
 
     /**
+     * The user associated with connection
+     */
+    private User user;
+
+    /**
      * Constructs a new TCPConnection thread with a specified clientSocket.
      * 
      * @param clientSocket the specified clientSocket
@@ -60,5 +67,13 @@ public class TCPConnection extends Thread {
     @Override
     public void run() {
 
+    }
+
+    /**
+     * Returns user
+     * @return
+     */
+    public User getUser(){
+        return user;
     }
 }

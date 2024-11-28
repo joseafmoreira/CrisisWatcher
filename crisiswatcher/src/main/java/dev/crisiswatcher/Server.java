@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-
 import dev.crisiswatcher.server.connection.Connection;
 import dev.crisiswatcher.server.logger.Logger;
 
@@ -88,6 +87,7 @@ public class Server {
                 break;
             }
             checkConnections();
+            
         }
         System.exit(0);
     }

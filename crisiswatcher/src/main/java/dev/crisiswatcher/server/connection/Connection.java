@@ -43,6 +43,14 @@ public class Connection extends Thread {
     }
 
     /**
+     * Returns a TCPConnection.
+     * @return
+     */
+    public TCPConnection getTcpConnection(){
+        return tcpConnection;
+    }
+
+    /**
      * Handles the server's TCP and UDP connections threads.
      */
     @Override

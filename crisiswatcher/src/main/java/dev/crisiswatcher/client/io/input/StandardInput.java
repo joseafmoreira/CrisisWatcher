@@ -8,9 +8,6 @@ import java.util.List;
 import dev.crisiswatcher.client.dto.UserDTO;
 import dev.crisiswatcher.client.io.IOSharedResources;
 
-import dev.crisiswatcher.client.dto.UserDTO;
-
-
 /**
  * Handles the user input from the standard input in a separate thread. <p>
  * 
@@ -90,7 +87,9 @@ public class StandardInput extends Thread {
      */
     @Override
     public void run() {
+
         System.out.println("Bem-vindo ao CrisisWatcher!\nCaso seja necessário, digite /help para obter a lista de comandos disponíveis");
+
         String input;
         try {
             while ((input = standardInput.readLine()) != null) {
