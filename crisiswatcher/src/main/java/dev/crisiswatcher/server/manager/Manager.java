@@ -1,4 +1,4 @@
-package dev.crisiswatcher.server.db;
+package dev.crisiswatcher.server.manager;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

@@ -1,7 +1,6 @@
 package dev.crisiswatcher.server.model;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * Room model containing a room's {@link #uuid}, {@link #name}, {@link #owner}, {@link #ip}, {@link #port} and {@link #code}. <p>
