@@ -10,6 +10,7 @@ import java.util.List;
 import dev.crisiswatcher.client.dto.RoomDTO;
 import dev.crisiswatcher.client.dto.UserDTO;
 import dev.crisiswatcher.client.dto.UserDTO.UserProfile;
+import dev.crisiswatcher.client.handler.UnseenMessagesHandler;
 import dev.crisiswatcher.client.io.IOSharedResources;
 
 /**
@@ -60,7 +61,14 @@ public class SocketInput extends Thread {
      * The room data transfer object
      */
     private RoomDTO roomDTO;
+    /**
+     * The TCP output buffer
+     */
     private List<String> tcpOutputBuffer;
+    /**
+     * Unseen messages handler thread
+     */
+    private UnseenMessagesHandler unseenMessagesHandler;
 
     /**
      * Constructs a new SocketInput object with a specified socketInputStreamReader and ioSharedResources.
@@ -73,6 +81,7 @@ public class SocketInput extends Thread {
         userDTO = ioSharedResources.getUserDTO();
         roomDTO = ioSharedResources.getRoomDTO();
         tcpOutputBuffer = ioSharedResources.getTcpOutputBuffer();
+        unseenMessagesHandler = new UnseenMessagesHandler(tcpOutputBuffer);
     }
 
     /**
@@ -80,6 +89,7 @@ public class SocketInput extends Thread {
      */
     @Override
     public void run() {
+        unseenMessagesHandler.start();
         String output;
         try {
             while ((output = socketInput.readLine()) != null) {
@@ -91,6 +101,7 @@ public class SocketInput extends Thread {
                     userDTO.setName((splittedOutput[1].equals("null")) ? null : splittedOutput[1]);
                     userDTO.setProfile((splittedOutput[2].equals("null")) ? null : UserProfile.getEnum(splittedOutput[2]));
                     output = splittedOutput[3].replaceAll("_", " ");
+                    unseenMessagesHandler.setRunningState(userDTO.getName() != null);
                 } else if (output.startsWith("/room")) {
                     String[] splittedOutput = output.split(" ");
                     roomDTO.setName((splittedOutput[1].equals("null")) ? null : splittedOutput[1]);
