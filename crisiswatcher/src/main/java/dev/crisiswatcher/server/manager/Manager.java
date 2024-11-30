@@ -300,6 +300,10 @@ public class Manager {
         return false;
     }
 
+    public synchronized boolean createRoom(String name, String address, int port, String code) {
+        return false;
+    }
+
     /**
      * Initializes the database.
      * 
@@ -309,6 +313,9 @@ public class Manager {
         Statement statement = connection.createStatement();
         if (!checkTable("users")) 
             createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");
+        if (!checkTable("rooms")) {
+            createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, address TEXT, port INTEGER, code TEXT, FOREIGN KEY(owner) REFERENCES users(uuid)");
+        }
         if (!checkTable("private_messages"))
             createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, content TEXT, seen int, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
     }
@@ -367,5 +374,9 @@ public class Manager {
             Logger.addServerLogEntry("Erro ao obter um utilizador: " + e.getMessage());
         }
         return null;
+    }
+
+    private synchronized void createDefaultRooms() {
+
     }
 }

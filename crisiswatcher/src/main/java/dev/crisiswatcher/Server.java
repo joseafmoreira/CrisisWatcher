@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import dev.crisiswatcher.server.connection.tcp.TCPConnection;
+import dev.crisiswatcher.server.connection.udp.UDPConnectionHandler;
 import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.report.ReportHandler;
 
@@ -62,6 +63,10 @@ public class Server {
      * The report handler thread
      */
     private ReportHandler reportHandler;
+    /**
+     * UDP connection handler thread
+     */
+    private UDPConnectionHandler udpConnectionHandler;
 
     /**
      * Constructs a new Server object.
@@ -72,6 +77,7 @@ public class Server {
             serverSocket.setSoTimeout(TIMEOUT);
             connections = Collections.synchronizedList(new ArrayList<>());
             reportHandler = new ReportHandler(connections);
+            udpConnectionHandler = new UDPConnectionHandler();
             Logger.addServerLogEntry("O servidor foi iniciado com sucesso em " + ADDRESS.toString().split("/")[1] + ":" + PORT);
         } catch (IOException e) {
             Logger.addServerLogEntry("Erro ao iniciar o servidor: " + e.getMessage());
@@ -84,6 +90,7 @@ public class Server {
      */
     public void start() {
         reportHandler.start();
+        udpConnectionHandler.start();
         while (true) {
             try {
                 connections.add(new TCPConnection(serverSocket.accept()));
