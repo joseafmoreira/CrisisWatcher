@@ -58,6 +58,9 @@ public class Server {
      * The server's connection list
      */
     private List<TCPConnection> connections;
+    /**
+     * The report handler thread
+     */
     private ReportHandler reportHandler;
 
     /**
