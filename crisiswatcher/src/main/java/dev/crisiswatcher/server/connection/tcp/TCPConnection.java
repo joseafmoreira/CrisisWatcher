@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import dev.crisiswatcher.server.db.Manager;
 import dev.crisiswatcher.server.model.UserModel;
 import dev.crisiswatcher.server.model.UserModel.UserProfile;
 import dev.crisiswatcher.server.protocol.AuthenticationProtocol;
