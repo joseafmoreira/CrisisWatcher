@@ -16,10 +16,11 @@ public abstract class UserChatProtocol {
             }
         } else if (input.contains("/chat")) {
             String[] splittedInput = input.split(" ");
-            if (splittedInput.length == 2)
-                output = getPrivateMessages(userModel.getName(), userModel.getUuid(), splittedInput[1], true);
+            if (splittedInput.length == 2) {
+                output = (userModel.getName().equals(splittedInput[1])) ? getOwnPrivateChat(userModel.getName(), userModel.getUuid()) : getPrivateChat(userModel.getName(), userModel.getUuid(), splittedInput[1]);
+            }
         } else if (input.equals("/unseen")) {
-            output = getPrivateMessages(userModel.getName(), userModel.getUuid(), "all", false);
+            output = getUnseenPrivateMessages(userModel.getName(), userModel.getUuid());
         } else if (input.startsWith("/seen")) {
             setPrivateMessagesSeen(Integer.valueOf(input.split(" ")[1]), userModel.getUuid());
             output = "/seen";
@@ -34,8 +35,16 @@ public abstract class UserChatProtocol {
         return output;
     }
 
-    private static String getPrivateMessages(String senderName, int senderID, String receiver, boolean all) {
-        return (Manager.getInstance()).getPrivateMessages(senderName, senderID, receiver, all);
+    private static String getOwnPrivateChat(String senderName, int senderID) {
+        return (Manager.getInstance()).getOwnPrivateChat(senderName, senderID);
+    }
+
+    private static String getPrivateChat(String senderName, int senderID, String receiver) {
+        return (Manager.getInstance()).getPrivateChat(senderName, senderID, receiver);
+    }
+
+    private static String getUnseenPrivateMessages(String senderName, int senderID) {
+        return (Manager.getInstance()).getUnseenPrivateMessages(senderName, senderID);
     }
 
     private static void setPrivateMessagesSeen(int messageID, int userID) {
