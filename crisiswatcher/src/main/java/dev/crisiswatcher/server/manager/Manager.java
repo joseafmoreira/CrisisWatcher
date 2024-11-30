@@ -239,7 +239,6 @@ public class Manager {
             result = "/msgs ";
             while (resultSet.next()) 
                 result += resultSet.getInt(1) + "/" + getUser((resultSet.getInt(2) == 0) ? resultSet.getInt(3) : resultSet.getInt(2)).getString(2) + "/" + getUser(resultSet.getInt(3)).getString(2) + "/" + resultSet.getString(4).replaceAll(" ", "_") + "/" + resultSet.getInt(5) + " ";
-            Logger.addServerLogEntry("As mensagens não lidas do utilizador " + senderName + " foram obtidas com sucesso");
             result = result.substring(0, result.length() - 1);
         } catch (SQLException e) {
             Logger.addServerLogEntry("Erro ao obter as mensagens não lidas do utilizador " + senderName + ": " + e.getMessage());
