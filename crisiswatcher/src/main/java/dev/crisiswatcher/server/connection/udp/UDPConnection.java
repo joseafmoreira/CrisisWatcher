@@ -19,14 +19,14 @@ public class UDPConnection extends Thread {
         roomName = roomModel.getName();
         multicastSocket = new MulticastSocket(roomModel.getPort());
         multicastSocket.joinGroup(roomModel.getIp());
-        datagramPacketBuffer = new byte[DATAGRAM_BUFFER_SIZE];
-        datagramPacket = new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length);
     }
 
     @Override
     public void run() {
         while (true) {
             try {
+                datagramPacketBuffer = new byte[DATAGRAM_BUFFER_SIZE];
+                datagramPacket = new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length);
                 multicastSocket.receive(datagramPacket);
                 String message = new String(datagramPacket.getData());
                 String[] splittedMessage = message.split(":");

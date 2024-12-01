@@ -54,7 +54,7 @@ public class UDPConnection extends Thread {
     public UDPConnection(RoomDTO roomDTO, UserDTO userDTO, List<String> udpOutputBuffer) throws IOException {
         multicastSocket = new MulticastSocket(roomDTO.getPort());
         multicastSocket.joinGroup(roomDTO.getIp());
-        multicastSocketInput = new MulticastSocketInput(multicastSocket, userDTO);
+        multicastSocketInput = new MulticastSocketInput(multicastSocket, userDTO, roomDTO);
         multicastSocketOutput = new MulticastSocketOutput(multicastSocket, userDTO, roomDTO, udpOutputBuffer);
     }
 

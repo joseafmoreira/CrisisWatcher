@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 
+import dev.crisiswatcher.client.dto.RoomDTO;
 import dev.crisiswatcher.client.dto.UserDTO;
 
 /**
@@ -38,15 +39,20 @@ public class MulticastSocketInput extends Thread {
      * The user data transfer object
      */
     private UserDTO userDTO;
+    /**
+     * The room data transfer object
+     */
+    private RoomDTO roomDTO;
 
     /**
      * Constructs a new MulticastSocketInput object with a specified multicastSocket.
      * 
      * @param multicastSocket the specified multicastSocket
      */
-    public MulticastSocketInput(MulticastSocket multicastSocket, UserDTO userDTO) {
+    public MulticastSocketInput(MulticastSocket multicastSocket, UserDTO userDTO, RoomDTO roomDTO) {
         this.multicastSocket = multicastSocket;
         this.userDTO = userDTO;
+        this.roomDTO = roomDTO;
     }
 
     /**
@@ -54,13 +60,16 @@ public class MulticastSocketInput extends Thread {
      */
     @Override
     public void run() {
-        byte[] datagramPacketBuffer = new byte[TOTAL_BYTES];
-        DatagramPacket datagramPacket = new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length);
         while (true) {
             try {
+                byte[] datagramPacketBuffer = new byte[TOTAL_BYTES];
+                DatagramPacket datagramPacket = new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length);
                 multicastSocket.receive(datagramPacket);
                 String message = new String(datagramPacket.getData());
-                if (!message.split(":")[0].equals(userDTO.getName())) System.out.println(message);
+                if (!message.split(":")[0].equals(userDTO.getName())) {
+                    String[] splittedMessage = message.split(":");
+                    System.out.println("[" + splittedMessage[0] + " -> " + roomDTO.getName() + "]: " + ((splittedMessage.length == 2) ? splittedMessage[1] : ""));
+                }
             } catch (IOException e) {
                 break;
             }
