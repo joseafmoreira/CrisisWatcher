@@ -229,6 +229,16 @@ public class Manager {
         return false;
     }
 
+    public synchronized ResultSet getRoomByName(String name) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM rooms WHERE name = ?");
+            preparedStatement.setString(1, name);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet;
+        } catch (SQLException ignored) {}
+        return null;
+    }
+
     public synchronized ResultSet getRoom(String code) {
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM rooms WHERE code = ?");
@@ -390,6 +400,10 @@ public class Manager {
         if (!checkTable("rooms")) {
             createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, address TEXT, port INTEGER, code TEXT");
             createDefaultRooms();
+        } else {
+            String lastRoomAddress = getLastRoomAddress();
+            String[] splittedAddress = lastRoomAddress.split(":");
+            RoomSettingsGenerator.setLastGeneratedAddress(splittedAddress[0], Integer.valueOf(splittedAddress[1]));
         }
         if (!checkTable("messages"))
             createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, room INTEGER, content TEXT, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(room) REFERENCES rooms(uuid)");
@@ -457,13 +471,15 @@ public class Manager {
         }     
     }
 
-    private synchronized ResultSet getRoomByName(String name) {
+    private synchronized String getLastRoomAddress() {
+        String result = null;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM rooms WHERE name = ?");
-            preparedStatement.setString(1, name);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            return resultSet;
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM rooms ORDER BY uuid DESC limit 1");
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet != null && resultSet.next()) {
+                result = resultSet.getString(3) + ":" + resultSet.getInt(4);
+            }
         } catch (SQLException ignored) {}
-        return null;
+        return result;
     }
 }

@@ -91,7 +91,7 @@ public class Server {
      * Initializes the server process.
      */
     public void start() {
-        //reportHandler.start();
+        reportHandler.start();
         udpConnectionHandler.start();
         while (true) {
             try {

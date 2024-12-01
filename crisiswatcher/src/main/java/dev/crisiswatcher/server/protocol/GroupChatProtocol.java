@@ -8,6 +8,7 @@ import java.util.List;
 import dev.crisiswatcher.server.manager.Manager;
 import dev.crisiswatcher.server.model.UserModel;
 import dev.crisiswatcher.server.model.UserModel.UserProfile;
+import dev.crisiswatcher.server.room.RoomSettingsGenerator;
 
 public abstract class GroupChatProtocol {
     private static final List<String> profiles = new ArrayList<>();
@@ -18,12 +19,39 @@ public abstract class GroupChatProtocol {
 
     public static String processInput(UserModel userModel, String input) {
         String output = null;
-        if (input.startsWith("/connect")) {
+        if (input.startsWith("/create")) {
+            String[] splittedInput = input.split(" ");
+            if (splittedInput.length == 2) {
+                output = createRoom(splittedInput[1]);
+            }
+        } else if (input.startsWith("/connect")) {
             output = connectToGroupRoom(input, userModel);
         } else if (input.startsWith("/group")) {
             String[] splittedInput = input.split(" ");
-            if (splittedInput.length == 2) 
-                output = getChat(splittedInput[1]);
+            if (splittedInput.length >= 2) {
+                String message = "";
+                for (int i = 1; i < splittedInput.length; i++) {
+                    message += splittedInput[i].trim() + " ";
+                }
+                output = getChat(message.substring(0, message.length() - 1));
+            }
+        }
+        return output;
+    }
+
+    private static String createRoom(String name) {
+        String output = "Não foi possível criar a sala " + name;
+        if (!profiles.contains(name)) {
+            try {
+                ResultSet resultSet = (Manager.getInstance()).getRoomByName(name);
+                if (resultSet != null && !resultSet.next()) {
+                    String generatedAddress = RoomSettingsGenerator.generateAddress();
+                    String[] splittedAddress = generatedAddress.split(":");
+                    String generatedCode = RoomSettingsGenerator.generateCode(name, splittedAddress[0], Integer.valueOf(splittedAddress[1]));
+                    if ((Manager.getInstance()).createRoom(name, splittedAddress[0], Integer.valueOf(splittedAddress[1]), generatedCode)) 
+                        output = "A sala " + name + " foi criada\nO código de entrada é: " + generatedCode;
+                }
+            } catch (SQLException ignored) {}
         }
         return output;
     }

@@ -49,6 +49,7 @@ public class SocketInput extends Thread {
      * Message displayed when the room is changed
      */
     private static final String DEFAULT_ROOM_CHANGE_MESSAGE = "Entrou na sala de chat: ";
+    private static final String DEFAULT_ALREADY_IN_ROOM_MESSAGE = "Já se encontra conectado à sala: ";
     /**
      * The socket input buffered reader
      */
@@ -111,12 +112,16 @@ public class SocketInput extends Thread {
                     }
                 } else if (output.startsWith("/room")) {
                     String[] splittedOutput = output.split(" ");
-                    roomDTO.setName((splittedOutput[1].equals("null")) ? null : splittedOutput[1]);
-                    try {
-                        roomDTO.setIp((splittedOutput[2].equals("null")) ? null : InetAddress.getByName(splittedOutput[2]));
-                    } catch (UnknownHostException ignored) {}
-                    roomDTO.setPort(Integer.valueOf(splittedOutput[3]));
-                    output = DEFAULT_ROOM_CHANGE_MESSAGE + roomDTO.getName();
+                    if (!splittedOutput[1].equals(roomDTO.getName())) {
+                        roomDTO.setName((splittedOutput[1].equals("null")) ? null : splittedOutput[1]);
+                        try {
+                            roomDTO.setIp((splittedOutput[2].equals("null")) ? null : InetAddress.getByName(splittedOutput[2]));
+                        } catch (UnknownHostException ignored) {}
+                        roomDTO.setPort(Integer.valueOf(splittedOutput[3]));
+                        output = DEFAULT_ROOM_CHANGE_MESSAGE + roomDTO.getName();
+                    } else {
+                        output = (splittedOutput[1].equals("null")) ? "Não se encontra conectado em nenhuma sala" : DEFAULT_ALREADY_IN_ROOM_MESSAGE + roomDTO.getName();
+                    }
                 } else if (output.startsWith("/chat_msgs")) {
                     String[] splittedOutput = output.split(" ");
                     String outputMessage = "";

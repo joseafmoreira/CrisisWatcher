@@ -8,6 +8,7 @@ import dev.crisiswatcher.client.dto.UserDTO;
 import dev.crisiswatcher.client.handler.udp.UDPConnection;
 import dev.crisiswatcher.client.io.IOSharedResources;
 
+
 /**
  * Handles the UDP connection of the client in a separate thread. <p>
  * 
@@ -88,6 +89,7 @@ public class UDPHandler extends Thread {
                     udpConnection = null;
                     System.out.println("Desconectou-se das salas de chat");
                 }
+                udpOutputBuffer.clear();
             }
             try {
                 sleep(500);

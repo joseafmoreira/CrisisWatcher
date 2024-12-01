@@ -15,6 +15,16 @@ public abstract class RoomSettingsGenerator {
     private static int forthDigit = 0;
     private static int port = START_PORT;
 
+    public static void setLastGeneratedAddress(String address, int port) {
+        String[] splittedAddress = address.split("\\.");
+        firstDigit = Integer.valueOf(splittedAddress[0]);
+        secondDigit = Integer.valueOf(splittedAddress[1]);
+        thirdDigit = Integer.valueOf(splittedAddress[2]);
+        forthDigit = Integer.valueOf(splittedAddress[3]);
+        RoomSettingsGenerator.port = port;
+        generateAddress();
+    }
+
     public static String generateAddress() {
         String result = null;
         if (firstDigit <= MAX_FIRST_DIGIT) {
