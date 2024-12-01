@@ -45,6 +45,10 @@ public class UDPHandler extends Thread {
      */
     private RoomDTO currentRoom;
     /**
+     * The TCP output buffer
+     */
+    private List<String> tcpOutputBuffer;
+    /**
      * The UDP output buffer
      */
     private List<String> udpOutputBuffer;
@@ -59,6 +63,7 @@ public class UDPHandler extends Thread {
         userDTO = ioSharedResources.getUserDTO();
         previousRoom = new RoomDTO();
         currentRoom = ioSharedResources.getRoomDTO();
+        tcpOutputBuffer = ioSharedResources.getTcpOutputBuffer();
         udpOutputBuffer = ioSharedResources.getUdpOutputBuffer();
     }
 
@@ -74,6 +79,7 @@ public class UDPHandler extends Thread {
                     try {
                         udpConnection = new UDPConnection(previousRoom, userDTO, udpOutputBuffer);
                         udpConnection.start();
+                        tcpOutputBuffer.add("/group " + previousRoom.getName());
                     } catch (IOException ignored) {
                         ignored.printStackTrace();
                         break;

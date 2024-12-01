@@ -117,6 +117,14 @@ public class SocketInput extends Thread {
                     } catch (UnknownHostException ignored) {}
                     roomDTO.setPort(Integer.valueOf(splittedOutput[3]));
                     output = DEFAULT_ROOM_CHANGE_MESSAGE + roomDTO.getName();
+                } else if (output.startsWith("/chat_msgs")) {
+                    String[] splittedOutput = output.split(" ");
+                    String outputMessage = "";
+                    for (int i = 1; i < splittedOutput.length; i++) {
+                        String[] splittedMessage = splittedOutput[i].split("/");
+                        outputMessage += "[" + splittedMessage[0].trim() + " -> " + splittedMessage[1].trim() + "]: " + splittedMessage[2].trim().replaceAll("_", " ").trim() + "\n";
+                    }
+                    output = (outputMessage.equals("")) ? "" : outputMessage.substring(0, outputMessage.length() - 1);
                 } else if (output.startsWith("/msgs")) {
                     String[] splittedOutput = output.split(" ");
                     String outputMessage = "";

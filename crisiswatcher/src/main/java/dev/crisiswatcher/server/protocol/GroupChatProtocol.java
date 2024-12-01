@@ -20,6 +20,10 @@ public abstract class GroupChatProtocol {
         String output = null;
         if (input.startsWith("/connect")) {
             output = connectToGroupRoom(input, userModel);
+        } else if (input.startsWith("/group")) {
+            String[] splittedInput = input.split(" ");
+            if (splittedInput.length == 2) 
+                output = getChat(splittedInput[1]);
         }
         return output;
     }
@@ -53,5 +57,9 @@ public abstract class GroupChatProtocol {
             }
         }
         return output;
+    }
+
+    private static String getChat(String name) {
+        return (Manager.getInstance()).getChat(name);
     }
 }

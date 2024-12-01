@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 
+import dev.crisiswatcher.server.manager.Manager;
 import dev.crisiswatcher.server.model.RoomModel;
 
 public class UDPConnection extends Thread {
@@ -27,7 +28,9 @@ public class UDPConnection extends Thread {
         while (true) {
             try {
                 multicastSocket.receive(datagramPacket);
-                System.out.println("[" + roomName + "] -> " + new String(datagramPacket.getData()));
+                String message = new String(datagramPacket.getData());
+                String[] splittedMessage = message.split(":");
+                (Manager.getInstance()).sendMessage(splittedMessage[0].trim(), roomName, splittedMessage[1].trim());
             } catch (IOException ignored) {}
         }
     }

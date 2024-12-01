@@ -213,6 +213,43 @@ public class Manager {
         return false;
     }
 
+    public synchronized boolean createRoom(String name, String address, int port, String code) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO rooms (name, address, port, code) VALUES (?, ?, ?, ?)");
+            statement.setString(1, name);
+            statement.setString(2, address);
+            statement.setInt(3, port);
+            statement.setString(4, code);
+            statement.executeUpdate();
+            Logger.addServerLogEntry("A sala " + name + " foi inserida com sucesso");
+            return true;
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao criar uma sala: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public synchronized ResultSet getRoom(String code) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM rooms WHERE code = ?");
+            statement.setString(1, code);
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet;
+        } catch (SQLException ignored) {}
+        return null;
+    }
+
+    public synchronized ResultSet getRooms() {
+        ResultSet resultSet = null;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM rooms");
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao oter as salas: " + e.getMessage());
+        }
+        return resultSet;
+    }
+
     public synchronized boolean sendPrivateMessage(String senderName, int senderID, String receiver, String content) {
         try {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO private_messages (sender, receiver, content, seen) VALUES (?, ?, ?, ?)");
@@ -302,41 +339,43 @@ public class Manager {
         return false;
     }
 
-    public synchronized ResultSet getRoom(String code) {
+    public synchronized boolean sendMessage(String sender, String room, String content) {
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM rooms WHERE code = ?");
-            statement.setString(1, code);
-            ResultSet resultSet = statement.executeQuery();
-            return resultSet;
-        } catch (SQLException ignored) {}
-        return null;
-    }
-
-    public synchronized boolean createRoom(String name, String address, int port, String code) {
-        try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO rooms (name, address, port, code) VALUES (?, ?, ?, ?)");
-            statement.setString(1, name);
-            statement.setString(2, address);
-            statement.setInt(3, port);
-            statement.setString(4, code);
-            statement.executeUpdate();
-            Logger.addServerLogEntry("A sala " + name + " foi inserida com sucesso");
-            return true;
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO messages (sender, room, content) VALUES (?, ?, ?)");
+            ResultSet senderResultSet = getUser(sender);
+            ResultSet roomResultSet = getRoomByName(room);
+            if (senderResultSet != null && senderResultSet.next() && roomResultSet != null && roomResultSet.next()) {
+                statement.setInt(1, senderResultSet.getInt(1));
+                statement.setInt(2, roomResultSet.getInt(1));
+                statement.setString(3, content);
+                statement.executeUpdate();
+                Logger.addServerLogEntry("A mensagem de " + sender + " para " + room + " foi registada com sucesso");
+                return true;
+            }
         } catch (SQLException e) {
-            Logger.addServerLogEntry("Erro ao criar uma sala: " + e.getMessage());
+            Logger.addServerLogEntry("Erro ao enviar uma mensagem para o chat " + room + ": " + e.getMessage());
         }
         return false;
     }
 
-    public synchronized ResultSet getRooms() {
-        ResultSet resultSet = null;
+    public synchronized String getChat(String room) {
+        String result = "Erro ao obter as mensagens do chat " + room;
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM rooms");
-            resultSet = statement.executeQuery();
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM messages WHERE room = ?");
+            ResultSet roomResultSet = getRoomByName(room);
+            if (roomResultSet != null && roomResultSet.next()) {
+                statement.setInt(1, roomResultSet.getInt(1));
+                ResultSet resultSet = statement.executeQuery();
+                result = "/chat_msgs ";
+                while (resultSet.next()) 
+                    result += getUser(resultSet.getInt(2)).getString(2) + "/" + room + "/" + resultSet.getString(4).replaceAll(" ", "_") + " ";
+                Logger.addServerLogEntry("O chat " + room + " foi obtido com sucesso");
+                result = result.substring(0, result.length() - 1);
+            }
         } catch (SQLException e) {
-            Logger.addServerLogEntry("Erro ao oter as salas: " + e.getMessage());
+            Logger.addServerLogEntry("Erro ao obter o chat " + room + ": " + e.getMessage());
         }
-        return resultSet;
+        return result;
     }
 
     /**
@@ -352,6 +391,8 @@ public class Manager {
             createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, address TEXT, port INTEGER, code TEXT");
             createDefaultRooms();
         }
+        if (!checkTable("messages"))
+            createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, room INTEGER, content TEXT, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(room) REFERENCES rooms(uuid)");
         if (!checkTable("private_messages"))
             createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, content TEXT, seen int, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
     }
@@ -414,5 +455,15 @@ public class Manager {
             String code = RoomSettingsGenerator.generateCode(profiles[i].getValue(), splittedAddress[0], Integer.valueOf(splittedAddress[1]));
             createRoom(profiles[i].getValue(), splittedAddress[0], Integer.valueOf(splittedAddress[1]), code);
         }     
+    }
+
+    private synchronized ResultSet getRoomByName(String name) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM rooms WHERE name = ?");
+            preparedStatement.setString(1, name);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet;
+        } catch (SQLException ignored) {}
+        return null;
     }
 }
