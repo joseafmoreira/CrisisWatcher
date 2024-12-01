@@ -95,7 +95,7 @@ public class TCPConnection extends Thread {
                             }
                         } else if ((output = UserChatProtocol.processInput(userModel, finalInput)) != null) {
                             socketOutputMessage = output;
-                        } else if ((output = GroupChatProtocol.processInput(finalInput)) != null) {
+                        } else if ((output = GroupChatProtocol.processInput(userModel, finalInput)) != null) {
                             socketOutputMessage = output;
                         } else if (input.equals("/logout")) {
                             userModel.setUuid(0);    

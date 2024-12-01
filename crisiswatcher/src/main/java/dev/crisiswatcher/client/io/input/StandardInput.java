@@ -52,6 +52,7 @@ public class StandardInput extends Thread {
         List.of(CommandLevel.AUTH, "/chat <username> - Recebe todas as mensagens de um chat com outro utilziador"),
         List.of(CommandLevel.AUTH, "/unseen - Recebe todas as mensagens enviadas por outros utilizadores que não foram vistas"),
         List.of(CommandLevel.AUTH, "/msg <username> <message> - Envia uma mensagem privada para outro utilizador"),
+        List.of(CommandLevel.AUTH, "/create <room_name> - Cria uma sala de chat"),
         List.of(CommandLevel.AUTH, "/connect <code> - Conecta-se a uma sala de chat"),
         List.of(CommandLevel.AUTH, "/logout - Desconecta o utilizador"),
         List.of(CommandLevel.ALL, "/help - Apresenta uma lista dos comandos disponíveis ao cliente"),
@@ -110,7 +111,6 @@ public class StandardInput extends Thread {
                     }
                     tcpOutputBuffer.add(input);
                 } else {
-                    System.out.println(roomDTO.isValid());
                     if (roomDTO.isValid()) udpOutputBuffer.add(input);
                 }
             }

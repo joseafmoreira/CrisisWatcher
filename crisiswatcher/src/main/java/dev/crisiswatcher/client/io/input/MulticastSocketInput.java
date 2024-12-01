@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 
+import dev.crisiswatcher.client.dto.UserDTO;
+
 /**
  * Handles the multicastSocket input in a separate thread. <p>
  * 
@@ -32,14 +34,19 @@ public class MulticastSocketInput extends Thread {
      * The client's UDP socket
      */
     private MulticastSocket multicastSocket;
+    /**
+     * The user data transfer object
+     */
+    private UserDTO userDTO;
 
     /**
      * Constructs a new MulticastSocketInput object with a specified multicastSocket.
      * 
      * @param multicastSocket the specified multicastSocket
      */
-    public MulticastSocketInput(MulticastSocket multicastSocket) {
+    public MulticastSocketInput(MulticastSocket multicastSocket, UserDTO userDTO) {
         this.multicastSocket = multicastSocket;
+        this.userDTO = userDTO;
     }
 
     /**
@@ -52,7 +59,8 @@ public class MulticastSocketInput extends Thread {
         while (true) {
             try {
                 multicastSocket.receive(datagramPacket);
-                System.out.println(new String(datagramPacket.getData()));
+                String message = new String(datagramPacket.getData());
+                if (!message.split(":")[0].equals(userDTO.getName())) System.out.println(message);
             } catch (IOException e) {
                 break;
             }
