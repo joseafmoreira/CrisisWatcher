@@ -54,6 +54,8 @@ public class StandardInput extends Thread {
         List.of(CommandLevel.AUTH, "/chat <username> - Recebe todas as mensagens de um chat com outro utilziador"),
         List.of(CommandLevel.AUTH, "/unseen - Recebe todas as mensagens enviadas por outros utilizadores que não foram vistas"),
         List.of(CommandLevel.AUTH, "/msg <username> <message> - Envia uma mensagem privada para outro utilizador"),
+        List.of(CommandLevel.AUTH, "/request <type> - Cria um pedido de um dos 3 tipos:\n" + 
+                                        "  -> Operação de evacuação em massa: "),
         List.of(CommandLevel.AUTH, "/logout - Desconecta o utilizador"),
         List.of(CommandLevel.ALL, "/help - Apresenta uma lista dos comandos disponíveis ao cliente"),
         List.of(CommandLevel.ALL, "/close - Fecha a aplicação")
