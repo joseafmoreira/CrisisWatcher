@@ -6,6 +6,7 @@ import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import dev.crisiswatcher.client.dto.RoomDTO;
 import dev.crisiswatcher.client.dto.UserDTO;
 
 /**
@@ -37,19 +38,26 @@ public class MulticastSocketOutput extends Thread {
      */
     private UserDTO userDTO;
     /**
+     * The user data transfer object
+     */
+    private RoomDTO roomDTO;
+    /**
      * The UDP output buffer
      */
     private List<String> udpOutputBuffer;
 
     /**
-     * Constructs a new MulticastSocketOutput object with a specified multicastSocket, userDTO and udpOutputBuffer.
+     * Constructs a new MulticastSocketOutput object with a specified multicastSocket, userDTO, roomDTO and udpOutputBuffer.
      * 
      * @param multicastSocket the specified multicastSocket
+     * @param userDTO the specified userDTO
+     * @param roomDTO the specified roomDTO
      * @param udpOutputBuffer the specified udpOutputBuffer
      */
-    public MulticastSocketOutput(MulticastSocket multicastSocket, UserDTO userDTO, List<String> udpOutputBuffer) {
+    public MulticastSocketOutput(MulticastSocket multicastSocket, UserDTO userDTO, RoomDTO roomDTO, List<String> udpOutputBuffer) {
         this.multicastSocket = multicastSocket;
         this.userDTO = userDTO;
+        this.roomDTO = roomDTO;
         this.udpOutputBuffer = udpOutputBuffer;
     }
 
@@ -60,12 +68,12 @@ public class MulticastSocketOutput extends Thread {
     public void run() {
         while (true) {
             if (!udpOutputBuffer.isEmpty()) {
-                String message = userDTO.getName() + ": " + udpOutputBuffer.removeFirst();
-                byte[] datagramPacketBuffer = message.getBytes(StandardCharsets.UTF_8);
-                DatagramPacket datagramPacket = new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length);
                 try {
-                    multicastSocket.send(datagramPacket);
-                } catch (IOException ignored) {
+                    String message = userDTO.getName() + ": " + udpOutputBuffer.removeFirst();
+                    byte[] datagramPacketBuffer = message.getBytes(StandardCharsets.UTF_8);
+                    multicastSocket.send(new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length, roomDTO.getIp(), roomDTO.getPort()));
+                } catch (IndexOutOfBoundsException ignored) {}
+                catch (IOException e) {
                     break;
                 }
             }

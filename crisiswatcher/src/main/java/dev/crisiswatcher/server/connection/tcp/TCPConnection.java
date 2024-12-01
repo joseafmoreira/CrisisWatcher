@@ -9,6 +9,7 @@ import java.net.Socket;
 import dev.crisiswatcher.server.model.UserModel;
 import dev.crisiswatcher.server.model.UserModel.UserProfile;
 import dev.crisiswatcher.server.protocol.AuthenticationProtocol;
+import dev.crisiswatcher.server.protocol.GroupChatProtocol;
 import dev.crisiswatcher.server.protocol.UserChatProtocol;
 import dev.crisiswatcher.server.protocol.UserSettingsProtocol;
 
@@ -93,6 +94,8 @@ public class TCPConnection extends Thread {
                                 socketOutputMessage = output;
                             }
                         } else if ((output = UserChatProtocol.processInput(userModel, finalInput)) != null) {
+                            socketOutputMessage = output;
+                        } else if ((output = GroupChatProtocol.processInput(finalInput)) != null) {
                             socketOutputMessage = output;
                         } else if (input.equals("/logout")) {
                             userModel.setUuid(0);    

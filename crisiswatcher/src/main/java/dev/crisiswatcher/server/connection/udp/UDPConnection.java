@@ -8,14 +8,14 @@ import dev.crisiswatcher.server.model.RoomModel;
 
 public class UDPConnection extends Thread {
     private static final int DATAGRAM_BUFFER_SIZE = 1024;
-    private RoomModel roomModel;
+    private String roomName;
     private MulticastSocket multicastSocket;
     private byte[] datagramPacketBuffer;
     private DatagramPacket datagramPacket;
     
     @SuppressWarnings("deprecation")
     public UDPConnection(RoomModel roomModel) throws IOException {
-        this.roomModel = roomModel;
+        roomName = roomModel.getName();
         multicastSocket = new MulticastSocket(roomModel.getPort());
         multicastSocket.joinGroup(roomModel.getIp());
         datagramPacketBuffer = new byte[DATAGRAM_BUFFER_SIZE];
@@ -27,11 +27,12 @@ public class UDPConnection extends Thread {
         while (true) {
             try {
                 multicastSocket.receive(datagramPacket);
-                System.out.println(datagramPacket.getData());
-            } catch (IOException ignored) {
-                break;
-            }
+                System.out.println("[" + roomName + "] -> " + new String(datagramPacket.getData()));
+            } catch (IOException ignored) {}
         }
-        interrupt();
+    }
+
+    public String getRoomName() {
+        return roomName;
     }
 }

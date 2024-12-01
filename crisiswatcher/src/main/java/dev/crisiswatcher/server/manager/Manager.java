@@ -10,6 +10,8 @@ import java.sql.Statement;
 
 import dev.crisiswatcher.server.file.FileHandler;
 import dev.crisiswatcher.server.logger.Logger;
+import dev.crisiswatcher.server.model.UserModel.UserProfile;
+import dev.crisiswatcher.server.room.RoomSettingsGenerator;
 
 /**
  * Singleton utility class that handles the database. <p>
@@ -300,8 +302,41 @@ public class Manager {
         return false;
     }
 
+    public synchronized ResultSet getRoom(String code) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM rooms WHERE code = ?");
+            statement.setString(1, code);
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet;
+        } catch (SQLException ignored) {}
+        return null;
+    }
+
     public synchronized boolean createRoom(String name, String address, int port, String code) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO rooms (name, address, port, code) VALUES (?, ?, ?, ?)");
+            statement.setString(1, name);
+            statement.setString(2, address);
+            statement.setInt(3, port);
+            statement.setString(4, code);
+            statement.executeUpdate();
+            Logger.addServerLogEntry("A sala " + name + " foi inserida com sucesso");
+            return true;
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao criar uma sala: " + e.getMessage());
+        }
         return false;
+    }
+
+    public synchronized ResultSet getRooms() {
+        ResultSet resultSet = null;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM rooms");
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao oter as salas: " + e.getMessage());
+        }
+        return resultSet;
     }
 
     /**
@@ -314,7 +349,8 @@ public class Manager {
         if (!checkTable("users")) 
             createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");
         if (!checkTable("rooms")) {
-            createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, address TEXT, port INTEGER, code TEXT, FOREIGN KEY(owner) REFERENCES users(uuid)");
+            createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, address TEXT, port INTEGER, code TEXT");
+            createDefaultRooms();
         }
         if (!checkTable("private_messages"))
             createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, content TEXT, seen int, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
@@ -330,7 +366,6 @@ public class Manager {
     private boolean checkTable(String name) throws SQLException {
         DatabaseMetaData metaData = connection.getMetaData();
         ResultSet resultSet = metaData.getTables(null, null, name, new String[]{"TABLE"});
-
         return resultSet.next();
     }
 
@@ -345,8 +380,8 @@ public class Manager {
         try {
             statement.execute("CREATE TABLE " + name + " (" + parameters + ")");
             Logger.addServerLogEntry("A tabela " + name + " foi criada");
-        } catch (SQLException ignored) {
-            Logger.addServerLogEntry("Erro ao criar a tabela " + name);
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao criar a tabela " + name + ": " + e.getMessage());
         }
     }
 
@@ -355,10 +390,8 @@ public class Manager {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE username = ?");
             preparedStatement.setString(1, username);
             ResultSet resultSet = preparedStatement.executeQuery();
-            Logger.addServerLogEntry("O utilizador " + username + " foi obtido da base de dados");
             return resultSet;
         } catch (SQLException e) {
-            Logger.addServerLogEntry("Erro ao obter um utilizador: " + e.getMessage());
         }
         return null;
     }
@@ -368,15 +401,18 @@ public class Manager {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE uuid = ?");
             preparedStatement.setInt(1, uuid);
             ResultSet resultSet = preparedStatement.executeQuery();
-            Logger.addServerLogEntry("O utilizador " + resultSet.getString(2) + " foi obtido da base de dados");
             return resultSet;
-        } catch (SQLException e) {
-            Logger.addServerLogEntry("Erro ao obter um utilizador: " + e.getMessage());
-        }
+        } catch (SQLException ignored) {}
         return null;
     }
 
     private synchronized void createDefaultRooms() {
-
+        UserProfile[] profiles = UserProfile.values();
+        for (int i = 0; i < profiles.length; i++) {
+            String address = RoomSettingsGenerator.generateAddress();
+            String[] splittedAddress = address.split(":");
+            String code = RoomSettingsGenerator.generateCode(profiles[i].getValue(), splittedAddress[0], Integer.valueOf(splittedAddress[1]));
+            createRoom(profiles[i].getValue(), splittedAddress[0], Integer.valueOf(splittedAddress[1]), code);
+        }     
     }
 }

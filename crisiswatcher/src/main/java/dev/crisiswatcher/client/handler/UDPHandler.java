@@ -75,10 +75,12 @@ public class UDPHandler extends Thread {
                         udpConnection = new UDPConnection(previousRoom, userDTO, udpOutputBuffer);
                         udpConnection.start();
                     } catch (IOException ignored) {
+                        ignored.printStackTrace();
                         break;
                     }
                 } else {
                     udpConnection = null;
+                    System.out.println("Desconectou-se das salas de chat");
                 }
             }
             try {

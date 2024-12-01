@@ -12,6 +12,7 @@ import java.util.List;
 import dev.crisiswatcher.server.connection.tcp.TCPConnection;
 import dev.crisiswatcher.server.connection.udp.UDPConnectionHandler;
 import dev.crisiswatcher.server.logger.Logger;
+import dev.crisiswatcher.server.manager.Manager;
 import dev.crisiswatcher.server.report.ReportHandler;
 
 /**
@@ -79,6 +80,7 @@ public class Server {
             reportHandler = new ReportHandler(connections);
             udpConnectionHandler = new UDPConnectionHandler();
             Logger.addServerLogEntry("O servidor foi iniciado com sucesso em " + ADDRESS.toString().split("/")[1] + ":" + PORT);
+            Manager.getInstance();
         } catch (IOException e) {
             Logger.addServerLogEntry("Erro ao iniciar o servidor: " + e.getMessage());
             System.exit(0);
@@ -89,7 +91,7 @@ public class Server {
      * Initializes the server process.
      */
     public void start() {
-        reportHandler.start();
+        //reportHandler.start();
         udpConnectionHandler.start();
         while (true) {
             try {

@@ -22,6 +22,10 @@ public class UnseenMessagesHandler extends Thread {
         }
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
     public void setRunningState(boolean running) {
         this.running = running;
     }

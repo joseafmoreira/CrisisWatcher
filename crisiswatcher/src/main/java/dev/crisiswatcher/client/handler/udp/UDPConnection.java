@@ -1,7 +1,11 @@
 package dev.crisiswatcher.client.handler.udp;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.List;
 
 import dev.crisiswatcher.client.dto.RoomDTO;
@@ -55,7 +59,7 @@ public class UDPConnection extends Thread {
         multicastSocket = new MulticastSocket(roomDTO.getPort());
         multicastSocket.joinGroup(roomDTO.getIp());
         multicastSocketInput = new MulticastSocketInput(multicastSocket);
-        multicastSocketOutput = new MulticastSocketOutput(multicastSocket, userDTO, udpOutputBuffer);
+        multicastSocketOutput = new MulticastSocketOutput(multicastSocket, userDTO, roomDTO, udpOutputBuffer);
     }
 
     /**

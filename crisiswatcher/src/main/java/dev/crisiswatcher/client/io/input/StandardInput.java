@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import dev.crisiswatcher.client.dto.RoomDTO;
 import dev.crisiswatcher.client.dto.UserDTO;
 import dev.crisiswatcher.client.io.IOSharedResources;
 
@@ -51,6 +52,7 @@ public class StandardInput extends Thread {
         List.of(CommandLevel.AUTH, "/chat <username> - Recebe todas as mensagens de um chat com outro utilziador"),
         List.of(CommandLevel.AUTH, "/unseen - Recebe todas as mensagens enviadas por outros utilizadores que não foram vistas"),
         List.of(CommandLevel.AUTH, "/msg <username> <message> - Envia uma mensagem privada para outro utilizador"),
+        List.of(CommandLevel.AUTH, "/connect <code> - Conecta-se a uma sala de chat"),
         List.of(CommandLevel.AUTH, "/logout - Desconecta o utilizador"),
         List.of(CommandLevel.ALL, "/help - Apresenta uma lista dos comandos disponíveis ao cliente"),
         List.of(CommandLevel.ALL, "/close - Fecha a aplicação")
@@ -59,6 +61,10 @@ public class StandardInput extends Thread {
      * The user data transfer object
      */
     private UserDTO userDTO;
+    /**
+     * The room data transfer object
+     */
+    private RoomDTO roomDTO;
     /**
      * The TCP output buffer
      */
@@ -79,6 +85,7 @@ public class StandardInput extends Thread {
      */
     public StandardInput(IOSharedResources ioSharedResources) {
         userDTO = ioSharedResources.getUserDTO();
+        roomDTO = ioSharedResources.getRoomDTO();
         tcpOutputBuffer = ioSharedResources.getTcpOutputBuffer();
         udpOutputBuffer = ioSharedResources.getUdpOutputBuffer();
         standardInput = new BufferedReader(new InputStreamReader(System.in));
@@ -103,7 +110,8 @@ public class StandardInput extends Thread {
                     }
                     tcpOutputBuffer.add(input);
                 } else {
-                    udpOutputBuffer.add(input);
+                    System.out.println(roomDTO.isValid());
+                    if (roomDTO.isValid()) udpOutputBuffer.add(input);
                 }
             }
         } catch (IOException ignored) {

@@ -42,10 +42,6 @@ public class RoomModel {
      */
     private String name;
     /**
-     * The owner of this room
-     */
-    private int owner;
-    /**
      * The ip of this room
      */
     private InetAddress ip;
@@ -63,9 +59,8 @@ public class RoomModel {
      */
     public RoomModel() {}
 
-    public RoomModel(String name, int owner, InetAddress ip, int port, String code) {
+    public RoomModel(String name, InetAddress ip, int port, String code) {
         setName(name);
-        setOwner(owner);
         setIp(ip);
         setPort(port);
         setCode(code);
@@ -105,24 +100,6 @@ public class RoomModel {
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * Returns this room's owner.
-     * 
-     * @return this room's owner
-     */
-    public int getOwner() {
-        return owner;
-    }
-
-    /**
-     * Sets the owner for this room.
-     * 
-     * @param owner the owner to be set for this room
-     */
-    public void setOwner(int owner) {
-        this.owner = owner;
     }
 
     /**

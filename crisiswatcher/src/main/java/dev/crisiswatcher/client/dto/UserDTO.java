@@ -112,7 +112,7 @@ public class UserDTO {
         /**
          * Represents a user with a medium profile
          */
-        MEDIUM(2, "Médio"),
+        MEDIUM(2, "Medio"),
         /**
          * Represents a user with a low profile
          */
@@ -214,7 +214,7 @@ public class UserDTO {
             return switch (value) {
                 case "Civil" -> UserProfile.CIVILIAN;
                 case "Baixo" -> UserProfile.LOW;
-                case "Médio" -> UserProfile.MEDIUM;
+                case "Medio" -> UserProfile.MEDIUM;
                 case "Alto" -> UserProfile.HIGH;
                 default -> null;
             };
