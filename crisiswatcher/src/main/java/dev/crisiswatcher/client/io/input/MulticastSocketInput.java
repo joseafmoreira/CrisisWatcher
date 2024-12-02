@@ -66,8 +66,8 @@ public class MulticastSocketInput extends Thread {
                 DatagramPacket datagramPacket = new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length);
                 multicastSocket.receive(datagramPacket);
                 String message = new String(datagramPacket.getData());
-                if (!message.split(":")[0].equals(userDTO.getName())) {
-                    String[] splittedMessage = message.split(":");
+                String[] splittedMessage = message.split(":");
+                if (!splittedMessage[0].equals(userDTO.getName()) || splittedMessage[1].trim().startsWith("[Notificação]")) {
                     System.out.println("[" + splittedMessage[0] + " -> " + roomDTO.getName() + "]: " + ((splittedMessage.length == 2) ? splittedMessage[1] : ""));
                 }
             } catch (IOException e) {

@@ -26,7 +26,7 @@ public abstract class NotificationProtocol {
         String[] splittedMessage = input.split(" ");
         if (splittedMessage.length >= 2 && (userModel.getProfile().getValue().equals("Alto") || userModel.getProfile().getValue().equals("Medio"))) {
             if (userModel.getProfile().getValue().equals("Alto") || userModel.getProfile().getValue().equals("Medio")) {
-                String message = "";
+                String message = "[Notificação] ";
                 for (int i = 1; i < splittedMessage.length; i++) 
                     message += splittedMessage[i] + " ";
                 message = message.substring(0, message.length() - 1);
