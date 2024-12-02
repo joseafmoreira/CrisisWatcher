@@ -52,7 +52,7 @@ public class SocketOutput extends Thread {
     @Override
     public void run() {
         while (true) {
-            if (!tcpOutputBuffer.isEmpty()) socketOutput.println(tcpOutputBuffer.removeFirst());
+            if (!tcpOutputBuffer.isEmpty()) socketOutput.println(tcpOutputBuffer.remove(0));
         }
     }
 }

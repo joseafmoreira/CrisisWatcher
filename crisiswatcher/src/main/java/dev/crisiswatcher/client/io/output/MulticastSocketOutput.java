@@ -69,7 +69,7 @@ public class MulticastSocketOutput extends Thread {
         while (true) {
             if (!udpOutputBuffer.isEmpty()) {
                 try {
-                    String message = userDTO.getName() + ": " + udpOutputBuffer.removeFirst();
+                    String message = userDTO.getName() + ": " + udpOutputBuffer.remove(0);
                     byte[] datagramPacketBuffer = message.getBytes(StandardCharsets.UTF_8);
                     multicastSocket.send(new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length, roomDTO.getIp(), roomDTO.getPort()));
                 } catch (IndexOutOfBoundsException ignored) {}
