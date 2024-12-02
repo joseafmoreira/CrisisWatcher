@@ -101,7 +101,7 @@ public class TCPConnection extends Thread {
                             socketOutputMessage = output;
                         } else if ((output = RequestProtocol.processInput(finalInput)) != null) {
                             socketOutputMessage = output;
-                        } else if ((output = NotificationProtocol.processInput(finalInput)) != null) {
+                        } else if ((output = NotificationProtocol.processInput(finalInput, userModel)) != null) {
                             socketOutputMessage = output;
                         } else if (input.equals("/logout")) {
                             userModel.setUuid(0);    
