@@ -25,23 +25,26 @@ public abstract class NotificationProtocol {
         String output = "Erro ao enviar a notifcação";
         String[] splittedMessage = input.split(" ");
         if (splittedMessage.length >= 2 && (userModel.getProfile().getValue().equals("Alto") || userModel.getProfile().getValue().equals("Medio"))) {
-            String message = "";
-            for (int i = 1; i < splittedMessage.length; i++) {
-                message += splittedMessage[i] + " ";
-            }
-            message = message.substring(0, message.length() - 1);
-            try {
-                ResultSet roomsResultSet = (Manager.getInstance()).getRooms();
-                if (roomsResultSet != null) {
-                    while (roomsResultSet.next()) {
-                        try {
-                            sendToGroup(roomsResultSet.getString(3), roomsResultSet.getInt(4), userModel.getName(), message);
-                        } catch (IOException ignored) {}
+            if (userModel.getProfile().getValue().equals("Alto") || userModel.getProfile().getValue().equals("Medio")) {
+                String message = "";
+                for (int i = 1; i < splittedMessage.length; i++) 
+                    message += splittedMessage[i] + " ";
+                message = message.substring(0, message.length() - 1);
+                try {
+                    ResultSet roomsResultSet = (Manager.getInstance()).getRooms();
+                    if (roomsResultSet != null) {
+                        while (roomsResultSet.next()) {
+                            try {
+                                sendToGroup(roomsResultSet.getString(3), roomsResultSet.getInt(4), userModel.getName(), message);
+                            } catch (IOException ignored) {}
+                        }
                     }
-                }
-                (Manager.getInstance()).sendNotification(userModel.getName(), userModel.getUuid(), message);
-                output = "Notificação enviada com sucesso";
-            } catch (SQLException ignored) {}
+                    (Manager.getInstance()).sendNotification(userModel.getName(), userModel.getUuid(), message);
+                    output = "Notificação enviada com sucesso";
+                } catch (SQLException ignored) {}
+            } else {
+                output = "Não tem permissões para aceder a este comando";
+            }      
         }
         return output;
     }
