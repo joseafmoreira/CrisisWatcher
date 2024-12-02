@@ -5,13 +5,11 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.sql.ResultSet;
-import java.util.List;
 
 import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.manager.Manager;
 import dev.crisiswatcher.server.model.RequestModel;
 import dev.crisiswatcher.server.model.RequestModel.RequestLevel;
-import dev.crisiswatcher.server.model.RoomModel;
 
 public class RequestHandler extends Thread {
     private RequestModel request;
