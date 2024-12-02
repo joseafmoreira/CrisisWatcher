@@ -39,6 +39,7 @@ public abstract class NotificationProtocol {
                         } catch (IOException ignored) {}
                     }
                 }
+                (Manager.getInstance()).sendNotification(userModel.getName(), userModel.getUuid(), message);
                 output = "Notificação enviada com sucesso";
             } catch (SQLException ignored) {}
         }

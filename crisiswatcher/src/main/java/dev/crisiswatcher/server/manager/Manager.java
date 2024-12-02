@@ -389,6 +389,22 @@ public class Manager {
         return result;
     }
 
+    public synchronized boolean sendNotification(String senderName, int senderID, String message) {
+        boolean flag = true;
+        try {
+            ResultSet usersResultSet = getUsers();
+            if (usersResultSet != null) {
+                while (usersResultSet.next()) 
+                    if (!sendPrivateMessage(senderName, senderID, usersResultSet.getString(2) , message)) {
+                        Logger.addServerLogEntry("A notificação não foi enviada com sucesso para os clientes");
+                        flag = false;
+                        break;
+                    }
+            }
+        } catch (SQLException ignored) {}
+        return flag;
+    }
+
     public synchronized boolean insertRequest(RequestModel request){
         int level = request.getRequestLevel().getKey();
         Boolean approved = request.isApproved();
@@ -486,6 +502,16 @@ public class Manager {
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet;
         } catch (SQLException ignored) {}
+        return null;
+    }
+
+    private synchronized ResultSet getUsers() {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet;
+        } catch (SQLException e) {
+        }
         return null;
     }
 
