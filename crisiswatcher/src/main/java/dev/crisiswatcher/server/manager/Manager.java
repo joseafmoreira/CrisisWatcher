@@ -10,6 +10,7 @@ import java.sql.Statement;
 
 import dev.crisiswatcher.server.file.FileHandler;
 import dev.crisiswatcher.server.logger.Logger;
+import dev.crisiswatcher.server.model.RequestModel;
 import dev.crisiswatcher.server.model.UserModel.UserProfile;
 import dev.crisiswatcher.server.room.RoomSettingsGenerator;
 
@@ -388,6 +389,30 @@ public class Manager {
         return result;
     }
 
+    public synchronized boolean insertRequest(RequestModel request){
+        int level = request.getRequestLevel().getKey();
+        Boolean approved = request.isApproved();
+
+        
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO requests (level,approved) VALUES (?, ?)");
+           
+            
+            preparedStatement.setInt(1, level);
+            preparedStatement.setString(2, approved.toString());
+            
+
+            preparedStatement.executeUpdate();
+            Logger.addServerLogEntry("Um Request foi criado com sucesso");
+
+            return true;
+        } catch (Exception e) {
+            Logger.addServerLogEntry("Erro ao criar um request: " + e.getMessage());
+            return false;
+        }
+
+    }
+
     /**
      * Initializes the database.
      * 
@@ -409,6 +434,9 @@ public class Manager {
             createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, room INTEGER, content TEXT, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(room) REFERENCES rooms(uuid)");
         if (!checkTable("private_messages"))
             createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, content TEXT, seen int, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
+        if(!checkTable("requests"))
+            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, approved TEXT");
+        
     }
 
     /**

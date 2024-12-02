@@ -30,7 +30,7 @@ public class RequestModel {
     /**
      * The approved flag of this request
      */
-    private boolean approved;
+    private Boolean approved;
 
     /**
      * Returns this request's uuid.
@@ -73,7 +73,7 @@ public class RequestModel {
      * 
      * @return true if this request is approved, false otherwise
      */
-    public boolean isApproved() {
+    public Boolean isApproved() {
         return approved;
     }
 
@@ -82,7 +82,7 @@ public class RequestModel {
      * 
      * @param approved the approved flag to be set for this request
      */
-    public void setApproved(boolean approved) {
+    public void setApproved(Boolean approved) {
         this.approved = approved;
     }
 
