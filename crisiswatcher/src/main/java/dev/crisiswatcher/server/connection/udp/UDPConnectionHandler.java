@@ -41,7 +41,7 @@ public class UDPConnectionHandler extends Thread {
                 }
             } catch (SQLException | IOException ignored) {}
             try {
-                sleep(1000);
+                sleep(500);
             } catch (InterruptedException ignored) {}
         }
     }
