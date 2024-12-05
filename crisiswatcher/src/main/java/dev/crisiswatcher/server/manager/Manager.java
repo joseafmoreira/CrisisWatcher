@@ -10,7 +10,6 @@ import java.sql.Statement;
 
 import dev.crisiswatcher.server.file.FileHandler;
 import dev.crisiswatcher.server.logger.Logger;
-import dev.crisiswatcher.server.model.RequestModel;
 import dev.crisiswatcher.server.model.UserModel.PasswordHandler;
 import dev.crisiswatcher.server.model.UserModel.UserProfile;
 import dev.crisiswatcher.server.room.RoomSettingsGenerator;
