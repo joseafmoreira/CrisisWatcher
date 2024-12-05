@@ -77,10 +77,7 @@ public abstract class RequestProtocol {
                 if (requestResultSet != null && requestResultSet.next()) {
                     if (requestResultSet.getInt(2) == userModel.getUuid()) result = "O pedido não pode ser negado pelo criador";
                     else if (!checkSendRequestPermissions(userModel, RequestLevel.getEnum(String.valueOf(requestResultSet.getInt(3))))) result = "Não tem permissões para negar este pedido";
-                    else if (setRequestAnswer(Integer.valueOf(splittedMessage[1]), false)){
-                        String temp = sendNotification(Integer.valueOf(splittedMessage[1]), "O pedido foi negado com sucesso");
-                        if (temp != null) result = temp;
-                    }
+                    else setRequestAnswer(Integer.valueOf(splittedMessage[1]), false);
                 }
             } catch (SQLException ignored) {}
         }
