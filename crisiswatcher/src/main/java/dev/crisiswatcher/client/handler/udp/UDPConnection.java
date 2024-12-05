@@ -1,5 +1,6 @@
 package dev.crisiswatcher.client.handler.udp;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.MulticastSocket;
 import java.util.List;
@@ -28,7 +29,7 @@ import dev.crisiswatcher.client.io.output.MulticastSocketOutput;
  * @author CrisisWatcher
  * @see Thread
  */
-public class UDPConnection extends Thread {
+public class UDPConnection extends Thread implements Closeable {
     /**
      * The client's UDP socket
      */
@@ -67,5 +68,13 @@ public class UDPConnection extends Thread {
         multicastSocketOutput.start();
         while (!multicastSocketInput.isInterrupted() && !multicastSocketOutput.isInterrupted()) {}
         interrupt();
+    }
+
+    /**
+     * Closes the current MulticastSocket connection
+     */
+    @Override
+    public void close() {
+        if (multicastSocket != null) multicastSocket.close();
     }
 }

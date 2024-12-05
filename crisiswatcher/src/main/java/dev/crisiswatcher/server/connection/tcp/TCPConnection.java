@@ -99,12 +99,12 @@ public class TCPConnection extends Thread {
                             socketOutputMessage = output;
                         } else if ((output = GroupChatProtocol.processInput(userModel, finalInput)) != null) {
                             socketOutputMessage = output;
-                        } else if ((output = RequestProtocol.processInput(finalInput)) != null) {
+                        } else if ((output = RequestProtocol.processInput(userModel, finalInput)) != null) {
                             socketOutputMessage = output;
-                        } else if ((output = NotificationProtocol.processInput(finalInput, userModel)) != null) {
+                        } else if ((output = NotificationProtocol.processInput(userModel, finalInput)) != null) {
                             socketOutputMessage = output;
                         } else if (input.equals("/logout")) {
-                            userModel.setUuid(0);    
+                            userModel.setUuid(0);
                             userModel.setName(null);
                             userModel.setProfile(null);
                             socketOutputMessage = sendUser("Utilizador desconectado com sucesso");

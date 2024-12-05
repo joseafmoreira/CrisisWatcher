@@ -11,6 +11,7 @@ import java.sql.Statement;
 import dev.crisiswatcher.server.file.FileHandler;
 import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.model.RequestModel;
+import dev.crisiswatcher.server.model.UserModel.PasswordHandler;
 import dev.crisiswatcher.server.model.UserModel.UserProfile;
 import dev.crisiswatcher.server.room.RoomSettingsGenerator;
 
@@ -92,12 +93,13 @@ public class Manager {
      */
     public synchronized boolean registerUser(String username, String password, int profile) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (username, password, profile) VALUES (?, ?, ?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (username, password, profile, enabled) VALUES (?, ?, ?, ?)");
             ResultSet resultSet = getUser(username);
             if (resultSet != null && !resultSet.next()) {
                 preparedStatement.setString(1, username);
                 preparedStatement.setString(2, password);
                 preparedStatement.setInt(3, profile);
+                preparedStatement.setInt(4, 1);
                 preparedStatement.executeUpdate();
                 Logger.addServerLogEntry("O utilizador " + username + " foi inserido com sucesso");
                 return true;
@@ -120,9 +122,10 @@ public class Manager {
     public synchronized String loginUser(String username, String password) {
         String output = null;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?");
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ? AND enabled = ?");
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, password);
+            preparedStatement.setInt(3, 1);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 Logger.addServerLogEntry("O utilizador " + username + " foi autenticado com sucesso");
@@ -134,6 +137,28 @@ public class Manager {
         }
 
         return output;
+    }
+
+    public synchronized ResultSet getUser(int uuid) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE uuid = ?");
+            preparedStatement.setInt(1, uuid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet;
+        } catch (SQLException ignored) {}
+        return null;
+    }
+
+    public synchronized ResultSet getSystemUser() {
+        ResultSet systemResultSet = null;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE enabled = 0");
+            systemResultSet = statement.executeQuery();
+            Logger.addServerLogEntry("O utilizador de sistema foi obtido com sucesso");
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao obter o utilizador de sistema: " + e.getMessage());
+        }
+        return systemResultSet;
     }
 
     /**
@@ -405,28 +430,56 @@ public class Manager {
         return flag;
     }
 
-    public synchronized boolean insertRequest(RequestModel request){
-        int level = request.getRequestLevel().getKey();
-        Boolean approved = request.isApproved();
-
-        
+    public synchronized boolean sendRequest(String ownerName, int ownerID, int level) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO requests (level,approved) VALUES (?, ?)");
-           
-            
-            preparedStatement.setInt(1, level);
-            preparedStatement.setString(2, approved.toString());
-            
-
-            preparedStatement.executeUpdate();
-            Logger.addServerLogEntry("Um Request foi criado com sucesso");
-
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO requests (owner, level, answered, approved) VALUES (?, ?, ?, ?)");
+            statement.setInt(1, ownerID);
+            statement.setInt(2, level);
+            statement.setInt(3, 0);
+            statement.setInt(4, 0);
+            statement.executeUpdate();
+            Logger.addServerLogEntry("O pedido do utilizador " + ownerName + " foi criado com sucesso");
             return true;
-        } catch (Exception e) {
-            Logger.addServerLogEntry("Erro ao criar um request: " + e.getMessage());
-            return false;
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao criar um pedido: " + e.getMessage());
         }
+        return false;
+    }
 
+    public synchronized ResultSet getRequests() {
+        ResultSet resultSet = null;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM requests WHERE answered = 0");
+            resultSet = statement.executeQuery();
+        } catch (SQLException ignored) {}
+        return resultSet;
+    }
+
+    public synchronized ResultSet getRequestByID(int uuid) {
+        ResultSet resultSet = null;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM requests WHERE uuid = ?");
+            statement.setInt(1, uuid);
+            resultSet = statement.executeQuery();
+        } catch (SQLException ignored) {}
+        return resultSet;
+    }
+
+    public synchronized boolean setRequestAnswer(int uuid, int answer) {
+        try {
+            ResultSet requestResultSet = getRequestByID(uuid);
+            if (requestResultSet != null && requestResultSet.next() && requestResultSet.getInt(4) == 0) {
+                PreparedStatement statement = connection.prepareStatement("UPDATE requests SET answered = 1, approved = ? WHERE uuid = ?");
+                statement.setInt(1, answer);
+                statement.setInt(2, uuid);
+                statement.executeUpdate();
+                Logger.addServerLogEntry("O pedido " + uuid + " foi atualizado com sucesso");
+                return true;
+            }
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao criar um pedido: " + e.getMessage());
+        }
+        return false;
     }
 
     /**
@@ -436,8 +489,10 @@ public class Manager {
      */
     private void initializeDatabase() throws SQLException {
         Statement statement = connection.createStatement();
-        if (!checkTable("users")) 
-            createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER");
+        if (!checkTable("users")) {
+            createTable(statement, "users", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, profile INTEGER, enabled INTEGER");
+            createDefaultUsers();
+        } 
         if (!checkTable("rooms")) {
             createTable(statement, "rooms", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, address TEXT, port INTEGER, code TEXT");
             createDefaultRooms();
@@ -450,9 +505,8 @@ public class Manager {
             createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, room INTEGER, content TEXT, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(room) REFERENCES rooms(uuid)");
         if (!checkTable("private_messages"))
             createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, content TEXT, seen int, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
-        if(!checkTable("requests"))
-            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, approved TEXT");
-        
+        if (!checkTable("requests"))
+            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, owner INTEGER, level INTEGER, answered INTEGER, approved INTEGER, FOREIGN KEY(owner) REFERENCES users(uuid)");     
     }
 
     /**
@@ -484,6 +538,22 @@ public class Manager {
         }
     }
 
+    private void createDefaultUsers() {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (username, profile, enabled) VALUES (?, ?, ?)");
+            preparedStatement.setString(1, "System");
+            preparedStatement.setInt(2, UserProfile.HIGH.getKey());
+            preparedStatement.setInt(3, 0);
+            preparedStatement.executeUpdate();
+            Logger.addServerLogEntry("O utilizador Sistema foi inserido com sucesso");
+            registerUser("High", PasswordHandler.cipher("high"), UserProfile.HIGH.getKey());
+            registerUser("Medium", PasswordHandler.cipher("medium"), UserProfile.MEDIUM.getKey());
+            registerUser("Low", PasswordHandler.cipher("low"), UserProfile.LOW.getKey());
+        } catch (SQLException e) {
+            Logger.addServerLogEntry("Erro ao inserir um utilizador: " + e.getMessage());
+        }
+    }
+
     private synchronized ResultSet getUser(String username) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE username = ?");
@@ -492,16 +562,6 @@ public class Manager {
             return resultSet;
         } catch (SQLException e) {
         }
-        return null;
-    }
-
-    private synchronized ResultSet getUser(int uuid) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE uuid = ?");
-            preparedStatement.setInt(1, uuid);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            return resultSet;
-        } catch (SQLException ignored) {}
         return null;
     }
 

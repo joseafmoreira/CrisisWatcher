@@ -14,6 +14,7 @@ import dev.crisiswatcher.server.connection.udp.UDPConnectionHandler;
 import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.manager.Manager;
 import dev.crisiswatcher.server.report.ReportHandler;
+import dev.crisiswatcher.server.request.RequestHandler;
 
 /**
  * Represents the server's main entry class
@@ -65,6 +66,10 @@ public class Server {
      */
     private ReportHandler reportHandler;
     /**
+     * The request handler thread
+     */
+    private RequestHandler requestHandler;
+    /**
      * UDP connection handler thread
      */
     private UDPConnectionHandler udpConnectionHandler;
@@ -78,6 +83,7 @@ public class Server {
             serverSocket.setSoTimeout(TIMEOUT);
             connections = Collections.synchronizedList(new ArrayList<>());
             reportHandler = new ReportHandler(connections);
+            requestHandler = new RequestHandler();
             udpConnectionHandler = new UDPConnectionHandler();
             Logger.addServerLogEntry("O servidor foi iniciado com sucesso em " + ADDRESS.toString().split("/")[1] + ":" + PORT);
             Manager.getInstance();
@@ -91,7 +97,8 @@ public class Server {
      * Initializes the server process.
      */
     public void start() {
-        //reportHandler.start();
+        reportHandler.start();
+        requestHandler.start();
         udpConnectionHandler.start();
         while (true) {
             try {

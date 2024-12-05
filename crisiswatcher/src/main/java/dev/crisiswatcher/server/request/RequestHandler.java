@@ -5,109 +5,86 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.manager.Manager;
-import dev.crisiswatcher.server.model.RequestModel;
 import dev.crisiswatcher.server.model.RequestModel.RequestLevel;
 
+@SuppressWarnings("deprecation")
 public class RequestHandler extends Thread {
-    private RequestModel request;
-    private ResultSet High;
-    private ResultSet Medium;
-    private ResultSet Low;
-    private ResultSet General;
-    private Manager dbManager;
-    private MulticastSocket HighSocket;
-    private MulticastSocket MediumSocket;
-    private MulticastSocket LowSocket;
-    private MulticastSocket GeneralSocket;
-    private InetAddress generalGroup;
-    private InetAddress highGroup;
-    private InetAddress mediumGroup;
-    private InetAddress lowGroup;
-
-    @SuppressWarnings("deprecation")
-    public RequestHandler(RequestModel request) throws IOException{
-        this.request = request;
-
-        this.dbManager = Manager.getInstance();
-
-        this.General = dbManager.getRoomByName("Civil");
-        this.Low = dbManager.getRoomByName("Baixo");
-        this.Medium = dbManager.getRoomByName("Medio");
-        this.High = dbManager.getRoomByName("Alto");
-
+    private static MulticastSocket highRoomSocket;
+    private static MulticastSocket mediumRoomSocket;
+    private static MulticastSocket lowRoomSocket;
+    private static MulticastSocket civilianRoomSocket;
+    private static InetAddress highRoomAddress;
+    private static int highRoomPort;
+    private static InetAddress mediumRoomAddress;
+    private static int mediumRoomPort;
+    private static InetAddress lowRoomAddress;
+    private static int lowRoomPort;
+    private static InetAddress civilianRoomAddress;
+    private static int civilianRoomPort;
+    static {
         try {
-            this.GeneralSocket = new MulticastSocket(General.getInt(4));
-            this.generalGroup = InetAddress.getByName(General.getString(3));
-            this.HighSocket = new MulticastSocket(High.getInt(4));
-            this.highGroup = InetAddress.getByName(High.getString(3));
-            this.MediumSocket = new MulticastSocket(Medium.getInt(4));
-            this.mediumGroup = InetAddress.getByName(Medium.getString(3));
-            this.LowSocket = new MulticastSocket(Low.getInt(4));
-            this.lowGroup = InetAddress.getByName(Low.getString(3));
-        } catch (Exception e) {
-            //TODO LOGGER SHIT
-        }
-        HighSocket.joinGroup(highGroup);
-        MediumSocket.joinGroup(mediumGroup);
-        LowSocket.joinGroup(lowGroup);
-        GeneralSocket.joinGroup(generalGroup);
-    } 
-
-    @Override
-    public void run(){
-        if(request.getRequestLevel() == RequestLevel.COMM){
-            String commString = request.getUuid() + "- REQUEST DE COMUNICACOES (/approve <request_ID>)";
-            try {
-                sendMessage(commString, HighSocket,High.getInt(4) , highGroup );
-                sendMessage(commString, MediumSocket,Medium.getInt(4) , mediumGroup );
-
-            } catch (Exception e) {
-                Logger.addServerLogEntry("Error Request: "+e.getMessage());
+            ResultSet highRoomResultSet = (Manager.getInstance()).getRoom("Alto");
+            ResultSet mediumRoomResultSet = (Manager.getInstance()).getRoom("Medio");
+            ResultSet lowRoomResultSet = (Manager.getInstance()).getRoom("Baixo");
+            ResultSet civilianRoomResultSet = (Manager.getInstance()).getRoom("Civil");
+            if (highRoomResultSet.next() && mediumRoomResultSet.next() && lowRoomResultSet.next() && civilianRoomResultSet.next()) {
+                highRoomAddress = InetAddress.getByName(highRoomResultSet.getString(3));
+                highRoomPort = highRoomResultSet.getInt(4);
+                mediumRoomAddress = InetAddress.getByName(mediumRoomResultSet.getString(3));
+                mediumRoomPort = mediumRoomResultSet.getInt(4);
+                lowRoomAddress = InetAddress.getByName(lowRoomResultSet.getString(3));
+                lowRoomPort = lowRoomResultSet.getInt(4);
+                civilianRoomAddress = InetAddress.getByName(civilianRoomResultSet.getString(3));
+                civilianRoomPort = civilianRoomResultSet.getInt(4);
+                highRoomSocket = new MulticastSocket(highRoomPort);
+                highRoomSocket.joinGroup(highRoomAddress);
+                mediumRoomSocket = new MulticastSocket(mediumRoomPort);
+                mediumRoomSocket.joinGroup(mediumRoomAddress);
+                lowRoomSocket = new MulticastSocket(lowRoomPort);
+                lowRoomSocket.joinGroup(lowRoomAddress);
+                civilianRoomSocket = new MulticastSocket(civilianRoomPort);
+                civilianRoomSocket.joinGroup(civilianRoomAddress);
             }
-
-        }else if(request.getRequestLevel() == RequestLevel.EVAC){
-            String evacString = request.getUuid() + "- REQUEST DE EVACUAÇÃO (/approve <request_ID>)";
-            try {
-                sendMessage(evacString, HighSocket,High.getInt(4) , highGroup );
-
-            } catch (Exception e) {
-                Logger.addServerLogEntry("Error Request: "+e.getMessage());
-            }
-            
-        }else if(request.getRequestLevel() == RequestLevel.RES){
-            String resString = request.getUuid() + "- REQUEST DE RECURSOS (/approve <request_ID>)";
-            try {
-                sendMessage(resString, HighSocket,High.getInt(4) , highGroup );
-                sendMessage(resString, MediumSocket,Medium.getInt(4) , mediumGroup );
-                sendMessage(resString, LowSocket,Low.getInt(4) , lowGroup );
-
-            } catch (Exception e) {
-                Logger.addServerLogEntry("Error Request: "+e.getMessage());
-            }
-
-        }
-        while (request.isApproved() == null) {}
-        if(request.isApproved()){
-            try {
-                sendMessage(request.getRequestLevel().toString(), GeneralSocket, General.getInt(4), generalGroup);
-            } catch (Exception e) {
-                Logger.addServerLogEntry("Erro a enviar REQUEST NOTIFICATION: "+e.getMessage());
-            }
-            
-        }else {
-            Logger.addServerLogEntry("Request Negado");
-        }
-        
-    
+        } catch (SQLException | IOException ignored) {}
     }
 
-    public void sendMessage(String message, MulticastSocket socket, int port, InetAddress group) throws IOException {
-        byte[] buffer = message.getBytes();
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, port);
-        socket.send(packet);
-        Logger.addServerLogEntry("Message sent: " + message);
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                ResultSet requestsResultSet = (Manager.getInstance()).getRequests();
+                if (requestsResultSet != null) {
+                    while (requestsResultSet.next()) {
+                        ResultSet userResultSet = (Manager.getInstance()).getUser(requestsResultSet.getInt(2));
+                        RequestLevel requestLevel = RequestLevel.getEnum(String.valueOf(requestsResultSet.getInt(3)));
+                        if (userResultSet != null && userResultSet.next()) {
+                            String message = userResultSet.getString(2) + ":[Pedido] " + requestLevel.getValue() + "(" + requestsResultSet.getInt(1) + ") - approve ou deny <request_id>";
+                            if (requestLevel.equals(RequestLevel.EVACUATION)) {
+                                sendNotification(highRoomSocket, highRoomAddress, highRoomPort, message);
+                            } else if (requestLevel.equals(RequestLevel.EMERGENCY_COMMS)) {
+                                sendNotification(highRoomSocket, highRoomAddress, highRoomPort, message);
+                                sendNotification(mediumRoomSocket, mediumRoomAddress, mediumRoomPort, message);
+                            } else if (requestLevel.equals(RequestLevel.EMERGENCY_RESOURCES)) {
+                                sendNotification(highRoomSocket, highRoomAddress, highRoomPort, message);
+                                sendNotification(mediumRoomSocket, mediumRoomAddress, mediumRoomPort, message);
+                                sendNotification(lowRoomSocket, lowRoomAddress, lowRoomPort, message);
+                            }
+                        }
+                    }
+                }
+                sleep(30000);
+            } catch (SQLException | InterruptedException ignored) {}
+        }
+    }
+
+    private void sendNotification(MulticastSocket multicastSocket, InetAddress address, int port, String message) {
+        try {
+            byte[] datagramPacketBuffer = message.getBytes();
+            DatagramPacket datagramPacket = new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length, address, port);
+            multicastSocket.send(datagramPacket);
+        } catch (IOException ignored) {}
     }
 }

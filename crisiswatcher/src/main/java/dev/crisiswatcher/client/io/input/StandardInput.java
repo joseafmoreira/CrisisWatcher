@@ -44,7 +44,7 @@ public class StandardInput extends Thread {
      * </ul>
      */
     private static final List<List<Object>> COMMAND_LIST = List.of(
-        List.of(CommandLevel.NOAUTH, "/register <username> <password> <profile> - Regista um utilizador"),
+        List.of(CommandLevel.NOAUTH, "/register <username> <password> <profile> - Regista um utilizador com um dos 4 tipos de perfil: Civil(0), Baixo(1), Medio(2) ou Alto(3)"),
         List.of(CommandLevel.NOAUTH, "/login <username> <password> - Autentica um utilizador"),
         List.of(CommandLevel.AUTH, "/info - Apresenta as informações relacionadas com o utilizador"),
         List.of(CommandLevel.AUTH, "/username <new_username> - Altera o nome de utilizador"),
@@ -55,8 +55,12 @@ public class StandardInput extends Thread {
         List.of(CommandLevel.AUTH, "/unseen - Recebe todas as mensagens enviadas por outros utilizadores que não foram vistas"),
         List.of(CommandLevel.AUTH, "/msg <username> <message> - Envia uma mensagem privada para outro utilizador"),
         List.of(CommandLevel.AUTH, "/notification <message> - Envia uma notificação para todos os utilizadores e grupos"),
-        /**List.of(CommandLevel.AUTH, "/request <type> - Cria um pedido de um dos 3 tipos:\n" + 
-                                        "  -> Operação de evacuação em massa: "),*/
+        List.of(CommandLevel.AUTH, "/request <type> - Cria um pedido de um dos 3 tipos:\n" + 
+                                        "evacuation  -> Operação de evacuação em massa\n" + 
+                                        "emergency_comms -> Ativação de comunicações de emergência\n" + 
+                                        "emergency_resources -> Distribuição de recursos de emergência"),
+        List.of(CommandLevel.AUTH, "/approve <request_id> - Aprova um pedido feito por um utilizador"),
+        List.of(CommandLevel.AUTH, "/deny <request_id> - Nega um pedido feito por um utilizador"),
         List.of(CommandLevel.AUTH, "/logout - Desconecta o utilizador"),
         List.of(CommandLevel.ALL, "/help - Apresenta uma lista dos comandos disponíveis ao cliente"),
         List.of(CommandLevel.ALL, "/close - Fecha a aplicação")

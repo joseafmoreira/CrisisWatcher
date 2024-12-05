@@ -13,15 +13,15 @@ import dev.crisiswatcher.server.manager.Manager;
 import dev.crisiswatcher.server.model.UserModel;
 
 public abstract class NotificationProtocol {
-    public static String processInput(String input, UserModel userModel) {
+    public static String processInput(UserModel userModel, String input) {
         String output = null;
         if (input.startsWith("/notification")) {
-            output = sendNotification(input, userModel);
+            output = sendNotification(userModel, input);
         }
         return output;
     }
 
-    private static String sendNotification(String input, UserModel userModel) {
+    private static String sendNotification(UserModel userModel, String input) {
         String output = "Erro ao enviar a notifcação";
         String[] splittedMessage = input.split(" ");
         if (splittedMessage.length >= 2 && (userModel.getProfile().getValue().equals("Alto") || userModel.getProfile().getValue().equals("Medio"))) {
@@ -53,7 +53,7 @@ public abstract class NotificationProtocol {
     private static void sendToGroup(String address, int port, String username, String message) throws IOException, UnknownHostException {
         MulticastSocket multicastSocket = new MulticastSocket(port);
         multicastSocket.joinGroup(InetAddress.getByName(address));
-        byte[] datagramPacketBuffer = (username + ": " + message).getBytes(StandardCharsets.UTF_8);
+        byte[] datagramPacketBuffer = (username + ":" + message).getBytes(StandardCharsets.UTF_8);
         multicastSocket.send(new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length, InetAddress.getByName(address), port));
         multicastSocket.close();
     }

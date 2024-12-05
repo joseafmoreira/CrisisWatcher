@@ -7,6 +7,8 @@ package dev.crisiswatcher.server.model;
  * <ul>
  *  <li>{@link #getUuid()}: Returns this request's uuid</li>
  *  <li>{@link #setUuid(int)}: Sets the uuid for this request</li>
+ *  <li>{@link #getOwner()}: Returns this request's owner</li>
+ *  <li>{@link #setOwner(int)}: Sets the owner for this request</li>
  *  <li>{@link #getRequestLevel()}: Returns this request's level</li>
  *  <li>{@link #setRequestLevel(RequestLevel)}: Sets the level for this request</li>
  *  <li>{@link #isApproved()}: Returns true if this request is approved, false otherwise</li>
@@ -23,6 +25,10 @@ public class RequestModel {
      * The uuid of this request
      */
     private int uuid;
+    /**
+     * The owner id of this request
+     */
+    private int owner;
     /**
      * The requestLevel of this request
      */
@@ -48,6 +54,24 @@ public class RequestModel {
      */
     public void setUuid(int uuid) {
         this.uuid = uuid;
+    }
+
+    /**
+     * Returns this request's owner.
+     * 
+     * @return this request's owner
+     */
+    public int getOwner() {
+        return owner;
+    }
+
+    /**
+     * Sets the owner for this request.
+     * 
+     * @param uuid the owner to be set for this request
+     */
+    public void setOwner(int owner) {
+        this.owner = owner;
     }
 
     /**
@@ -109,15 +133,15 @@ public class RequestModel {
         /**
          * Represents an evacuation request
          */
-        EVAC(2, "EVAC"),
+        EVACUATION(2, "evacuation", "Operacao de evacuacao em massa"),
         /**
          * Represents a communication request
          */
-        COMM(1, "COMM"),
+        EMERGENCY_COMMS(1, "emergency_comms", "Ativacao de comunicacoes de emergencia"),
         /**
          * Represents a resources request
          */
-        RES(0, "RES");
+        EMERGENCY_RESOURCES(0, "emergency_resources", "Distribuicao de recursos de emergencia");
     
         /**
          * The key of this level
@@ -127,6 +151,7 @@ public class RequestModel {
          * The value of this level
          */
         private final String value;
+        private final String message;
     
         /**
          * Constructs a new RequestLevel with a specified key and value.
@@ -134,9 +159,10 @@ public class RequestModel {
          * @param key the key of this level
          * @param value the value of this level
          */
-        private RequestLevel(int key, String value) {
+        private RequestLevel(int key, String value, String message) {
             this.key = key;
             this.value = value;
+            this.message = message;
         }
     
         /**
@@ -176,6 +202,15 @@ public class RequestModel {
         }
     
         /**
+         * Returns the message of this request level.
+         * 
+         * @return the message of this request level
+         */
+        public String getMessage() {
+            return message;
+        }
+
+        /**
          * Returns a string representation of this request level.
          * 
          * @return a string representation of this request level
@@ -193,9 +228,9 @@ public class RequestModel {
          */
         private static RequestLevel getByKey(int key) {
             return switch (key) {
-                case 0 -> RequestLevel.RES;
-                case 1 -> RequestLevel.COMM;
-                case 2 -> RequestLevel.EVAC;
+                case 0 -> RequestLevel.EMERGENCY_RESOURCES;
+                case 1 -> RequestLevel.EMERGENCY_COMMS;
+                case 2 -> RequestLevel.EVACUATION;
                 default -> null;
             };
         }
@@ -208,9 +243,9 @@ public class RequestModel {
          */
         private static RequestLevel getByValue(String value) {
             return switch (value) {
-                case "RES" -> RequestLevel.RES;
-                case "COMM" -> RequestLevel.COMM;
-                case "EVAC" -> RequestLevel.EVAC;
+                case "emergency_resources" -> RequestLevel.EMERGENCY_RESOURCES;
+                case "emergency_comms" -> RequestLevel.EMERGENCY_COMMS;
+                case "evacuation" -> RequestLevel.EVACUATION;
                 default -> null;
             };
         }

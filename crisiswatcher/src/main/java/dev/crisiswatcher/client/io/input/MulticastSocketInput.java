@@ -1,5 +1,6 @@
 package dev.crisiswatcher.client.io.input;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
@@ -67,7 +68,7 @@ public class MulticastSocketInput extends Thread {
                 multicastSocket.receive(datagramPacket);
                 String message = new String(datagramPacket.getData());
                 String[] splittedMessage = message.split(":");
-                if (!splittedMessage[0].equals(userDTO.getName()) || splittedMessage[1].trim().startsWith("[Notificação]")) {
+                if (!splittedMessage[0].equals(userDTO.getName()) || splittedMessage[1].trim().startsWith("[Notificação]") || splittedMessage[1].trim().startsWith("[Pedido]")) {
                     System.out.println("[" + splittedMessage[0] + " -> " + roomDTO.getName() + "]: " + ((splittedMessage.length == 2) ? splittedMessage[1] : ""));
                 }
             } catch (IOException e) {

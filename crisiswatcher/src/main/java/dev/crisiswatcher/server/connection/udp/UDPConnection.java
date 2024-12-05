@@ -29,6 +29,7 @@ public class UDPConnection extends Thread {
                 datagramPacket = new DatagramPacket(datagramPacketBuffer, datagramPacketBuffer.length);
                 multicastSocket.receive(datagramPacket);
                 String message = new String(datagramPacket.getData());
+                System.out.println(message);
                 String[] splittedMessage = message.split(":");
                 (Manager.getInstance()).sendMessage(splittedMessage[0].trim(), roomName, splittedMessage[1].trim());
             } catch (IOException ignored) {}

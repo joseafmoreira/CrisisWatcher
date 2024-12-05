@@ -76,6 +76,7 @@ public class UDPHandler extends Thread {
         while (true) {
             if (!previousRoom.equals(currentRoom)) {
                 previousRoom = new RoomDTO(currentRoom);
+                if (udpConnection != null) udpConnection.close();
                 if (previousRoom.isValid()) {
                     try {
                         udpConnection = new UDPConnection(previousRoom, userDTO, udpOutputBuffer);
