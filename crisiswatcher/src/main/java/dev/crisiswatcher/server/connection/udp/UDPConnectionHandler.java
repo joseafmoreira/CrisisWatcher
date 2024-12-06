@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,8 +13,8 @@ import dev.crisiswatcher.server.model.RoomModel;
 public class UDPConnectionHandler extends Thread {
     private List<UDPConnection> connections;
 
-    public UDPConnectionHandler() {
-        connections = Collections.synchronizedList(new ArrayList<>());
+    public UDPConnectionHandler(List<UDPConnection> connections) {
+        this.connections = connections;
     }
 
     @Override

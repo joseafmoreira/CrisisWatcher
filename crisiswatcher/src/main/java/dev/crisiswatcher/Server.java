@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import dev.crisiswatcher.server.connection.tcp.TCPConnection;
+import dev.crisiswatcher.server.connection.udp.UDPConnection;
 import dev.crisiswatcher.server.connection.udp.UDPConnectionHandler;
 import dev.crisiswatcher.server.logger.Logger;
 import dev.crisiswatcher.server.manager.Manager;
@@ -58,9 +59,13 @@ public class Server {
      */
     private ServerSocket serverSocket;
     /**
-     * The server's connection list
+     * The server's TCP connection list
      */
-    private List<TCPConnection> connections;
+    private List<TCPConnection> tcpConnections;
+    /**
+     * The server's UDP connection list
+     */
+    private List<UDPConnection> udpConnections;
     /**
      * The report handler thread
      */
@@ -81,10 +86,11 @@ public class Server {
         try {
             serverSocket = new ServerSocket(PORT, BACKLOG, ADDRESS);
             serverSocket.setSoTimeout(TIMEOUT);
-            connections = Collections.synchronizedList(new ArrayList<>());
-            reportHandler = new ReportHandler(connections);
+            tcpConnections = Collections.synchronizedList(new ArrayList<>());
+            udpConnections = Collections.synchronizedList(new ArrayList<>());
+            reportHandler = new ReportHandler(tcpConnections, udpConnections);
             requestHandler = new RequestHandler();
-            udpConnectionHandler = new UDPConnectionHandler();
+            udpConnectionHandler = new UDPConnectionHandler(udpConnections);
             Logger.addServerLogEntry("O servidor foi iniciado com sucesso em " + ADDRESS.toString().split("/")[1] + ":" + PORT);
             Manager.getInstance();
         } catch (IOException e) {
@@ -102,7 +108,7 @@ public class Server {
         udpConnectionHandler.start();
         while (true) {
             try {
-                connections.add(new TCPConnection(serverSocket.accept()));
+                tcpConnections.add(new TCPConnection(serverSocket.accept()));
             } catch (SocketTimeoutException ignored) {}
             catch (IOException e) {
                 Logger.addServerLogEntry("Erro no servidor: " + e.getMessage());
@@ -117,7 +123,7 @@ public class Server {
      * Checks the connections added to this server's list.
      */
     private void checkConnections() {
-        Iterator<TCPConnection> it = connections.iterator();
+        Iterator<TCPConnection> it = tcpConnections.iterator();
         while (it.hasNext()) {
             TCPConnection connection = it.next();
             if (connection.isInterrupted()) {
