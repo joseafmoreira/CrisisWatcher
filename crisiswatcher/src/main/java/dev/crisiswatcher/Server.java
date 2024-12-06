@@ -103,9 +103,9 @@ public class Server {
      * Initializes the server process.
      */
     public void start() {
-        reportHandler.start();
-        requestHandler.start();
         udpConnectionHandler.start();
+        requestHandler.start();
+        reportHandler.start();
         while (true) {
             try {
                 tcpConnections.add(new TCPConnection(serverSocket.accept()));
