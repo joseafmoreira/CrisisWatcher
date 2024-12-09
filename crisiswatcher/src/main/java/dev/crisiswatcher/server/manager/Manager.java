@@ -503,9 +503,9 @@ public class Manager {
         if (!checkTable("messages"))
             createTable(statement, "messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, room INTEGER, content TEXT, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(room) REFERENCES rooms(uuid)");
         if (!checkTable("private_messages"))
-            createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, content TEXT, seen int, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
+            createTable(statement, "private_messages", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, content TEXT, seen INTEGER, FOREIGN KEY(sender) REFERENCES users(uuid), FOREIGN KEY(receiver) REFERENCES users(uuid)");
         if (!checkTable("requests"))
-            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, owner INTEGER, level INTEGER, answered INTEGER, approved INTEGER, FOREIGN KEY(owner) REFERENCES users(uuid)");     
+            createTable(statement, "requests", "uuid INTEGER PRIMARY KEY AUTOINCREMENT, owner INTEGER, level INTEGER, answered INTEGER, approved INTEGER, FOREIGN KEY(owner) REFERENCES users(uuid)");   
     }
 
     /**
