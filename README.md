@@ -1,2 +1,2 @@
 # CrisisWatcher
-A disaster alert application made using Java that uses TCP / UDP protocols for communication
+A chat application with custom alerts made for an university course using TCP and UDP for communication
