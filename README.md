@@ -8,7 +8,7 @@ Software version list
 
 You can compile the project using the following commands in the repository root folder.
 ### Linux / MacOS
-`mvn clean compile assembly:single -f "./crisiswatcher/pom.xml`
+    mvn clean compile assembly:single -f "./crisiswatcher/pom.xml
 ### Windows
 `mvn clean compile assembly:single -f "./crisiswatcher/pom.xml"`
 
